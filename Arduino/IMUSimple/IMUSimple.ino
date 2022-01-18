@@ -21,8 +21,7 @@
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
 
-float beta = betaDef;                // 2 * proportional gain (Kp)
-float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // quaternion of sensor frame relative to auxiliary frame
+float q[4] = {1.0f, 0.0f, 0.0f, 0.0f}; 
 
 
 
@@ -66,6 +65,16 @@ int Temp;
 // Init flag set to TRUE after first loop
 boolean initialized = false;
 
+// parameters for 6 DoF sensor fusion calculations
+float GyroMeasError = PI * (1.0f / 180.0f);     // gyroscope measurement error in rads/s (start at 60 deg/s), then reduce after ~10 s to 3
+float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // compute beta
+float GyroMeasDrift = PI * (1.0f / 180.0f);      // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
+float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;  // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
+float deltat = 0.0f;  
+uint32_t lastUpdate = 0, firstUpdate = 0;         // used to calculate integration interval
+uint32_t Now = 0;                                 // used to calculate integration interval
+float gres = 500.0 / 32768.0;
+float ares = 8.0 / 32768.0;
 // 
 void setup(){
   Wire.begin();
@@ -79,9 +88,17 @@ void setup(){
 void loop(){
 
   readSensor();
-  calculateAngles(); 
-  updateIMU(acc_raw[X], acc_raw[Y], acc_raw[Z],gyro_raw[X] * PI / 180.0f, gyro_raw[Y] * PI / 180.0f, gyro_raw[Z] * PI / 180.0f);
+   Now = micros();
+ //     if(lastUpdate - firstUpdate > 10000000uL) {
+ //       beta = 0.041; // decrease filter gain after stabilized
+ //       zeta = 0.015; // increase gyro bias drift gain after stabilized
+ //     }
+  // Pass gyro rate as rad/s
+  calculateGyroAngles(); 
+  deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
+  lastUpdate = Now;
   
+   MadgwickQuaternionUpdate(ares*acc_raw[X], ares*acc_raw[Y], ares*acc_raw[Z], gres*gyro_raw[X] * PI / 180.0f, gres*gyro_raw[Y] * PI / 180.0f, gres*gyro_raw[Z] * PI / 180.0f);
   //Serial.print("Temp = "); Serial.print(Temp/340.00+36.53);
   /* 
   
@@ -122,13 +139,13 @@ void loop(){
   Serial.print(","); 
   Serial.println(measures[YAW]);
 */
-  Serial.print(q0);
+  Serial.print(q[0]);
   Serial.print(",");
-  Serial.print(q1);
+  Serial.print(q[1]);
   Serial.print(","); 
-  Serial.print(q2);
+  Serial.print(q[2]);
   Serial.print(","); 
-  Serial.println(q3);
+  Serial.println(q[3]);
   
   //delay(100);
 }
