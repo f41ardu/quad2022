@@ -12,9 +12,22 @@
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
 #define FREQ        250   // Sampling frequency
 #define SSF_GYRO    65.5  // Sensitivity Scale Factor of the gyro from datasheet
+//---------------------------------------------------------------------------------------------------
+// Definitions
+
+#define sampleFreq  250.0f    // sample frequency in Hz
+#define betaDef   0.1f    // 2 * proportional gain
+
+//---------------------------------------------------------------------------------------------------
+// Variable definitions
+
+float beta = betaDef;                // 2 * proportional gain (Kp)
+float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;  // quaternion of sensor frame relative to auxiliary frame
+
 
 
 #include<Wire.h>
+#include <math.h>
 
 // ----------------------- MPU variables -------------------------------------
 // The RAW values got from gyro (in °/sec) in that order: X, Y, Z
@@ -47,6 +60,7 @@ float angular_motions[3] = {0, 0, 0};
  */
 float measures[3] = {0, 0, 0};
 
+
 // MPU Temperature
 int Temp; 
 // Init flag set to TRUE after first loop
@@ -66,6 +80,8 @@ void loop(){
 
   readSensor();
   calculateAngles(); 
+  updateIMU(acc_raw[X], acc_raw[Y], acc_raw[Z],gyro_raw[X] * PI / 180.0f, gyro_raw[Y] * PI / 180.0f, gyro_raw[Z] * PI / 180.0f);
+  
   //Serial.print("Temp = "); Serial.print(Temp/340.00+36.53);
   /* 
   
@@ -106,14 +122,19 @@ void loop(){
   Serial.print(","); 
   Serial.println(measures[YAW]);
 */
-  Serial.print(angular_motions[ROLL]);
+  Serial.print(q0);
   Serial.print(",");
-  Serial.print(angular_motions[PITCH]);
+  Serial.print(q1);
   Serial.print(","); 
-  Serial.println(angular_motions[YAW]);
+  Serial.print(q2);
+  Serial.print(","); 
+  Serial.println(q3);
   
-  delay(100);
+  //delay(100);
 }
+
+
+
 
 
  
