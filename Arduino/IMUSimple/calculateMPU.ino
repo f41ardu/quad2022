@@ -6,7 +6,12 @@ void calculateGyroAngles() {
     gyro_raw[X] -= gyro_offset[X];
     gyro_raw[Y] -= gyro_offset[Y];
     gyro_raw[Z] -= gyro_offset[Z];
- 
+
+    /*
+    acc_raw[X] -= acc_offset[X];
+    acc_raw[Y] -= acc_offset[Y];
+    acc_raw[Z] -= acc_offset[Z];
+    */
  
     // Angle calculation using integration
     gyro_angle[X] += (gyro_raw[X] / (FREQ * SSF_GYRO));

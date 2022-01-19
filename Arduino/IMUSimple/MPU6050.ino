@@ -18,10 +18,10 @@ void setupMPURegister() {
     Wire.endTransmission(true);              // End the transmission
 
     // Configure low pass filter
-    Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-    Wire.write(0x1A);                    // Request the CONFIG register
-    Wire.write(0x03);                    // Set Digital Low Pass Filter about ~43Hz
-    Wire.endTransmission(true);              // End the transmission
+//    Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
+//    Wire.write(0x1A);                    // Request the CONFIG register
+//    Wire.write(0x03);                    // Set Digital Low Pass Filter about ~43Hz
+//    Wire.endTransmission(true);              // End the transmission
 }
 
 void readSensor() {
@@ -49,7 +49,7 @@ void readSensor() {
  * This function might take ~2sec for 2000 samples.
  */
 void calibrateMpu6050() {
-    int max_samples = 200;
+    int max_samples = 1000;
 
     for (int i = 0; i < max_samples; i++) {
         readSensor();
@@ -57,7 +57,6 @@ void calibrateMpu6050() {
         gyro_offset[X] += gyro_raw[X];
         gyro_offset[Y] += gyro_raw[Y];
         gyro_offset[Z] += gyro_raw[Z];
-
      
         // Generate low throttle pulse to init ESC and prevent them beeping (need to be replaced in case of brushed engines)
         PORTD |= B11110000;      // Set pins #4 #5 #6 #7 HIGH

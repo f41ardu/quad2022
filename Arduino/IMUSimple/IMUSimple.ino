@@ -75,6 +75,7 @@ uint32_t lastUpdate = 0, firstUpdate = 0;         // used to calculate integrati
 uint32_t Now = 0;                                 // used to calculate integration interval
 float gres = 500.0 / 32768.0;
 float ares = 8.0 / 32768.0;
+const float pi_180 = PI / 180.0f;
 // 
 void setup(){
   Wire.begin();
@@ -88,7 +89,7 @@ void setup(){
 void loop(){
 
   readSensor();
-   Now = micros();
+  Now = micros();
  //     if(lastUpdate - firstUpdate > 10000000uL) {
  //       beta = 0.041; // decrease filter gain after stabilized
  //       zeta = 0.015; // increase gyro bias drift gain after stabilized
@@ -98,7 +99,7 @@ void loop(){
   deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
   lastUpdate = Now;
   
-   MadgwickQuaternionUpdate(ares*acc_raw[X], ares*acc_raw[Y], ares*acc_raw[Z], gres*gyro_raw[X] * PI / 180.0f, gres*gyro_raw[Y] * PI / 180.0f, gres*gyro_raw[Z] * PI / 180.0f);
+   MadgwickQuaternionUpdate(ares*acc_raw[X], ares*acc_raw[Y], ares*acc_raw[Z], gres*gyro_raw[X] *  pi_180, gres*gyro_raw[Y] * pi_180, gres*gyro_raw[Z] * pi_180);
   //Serial.print("Temp = "); Serial.print(Temp/340.00+36.53);
   /* 
   
