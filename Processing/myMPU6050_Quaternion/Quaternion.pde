@@ -8,6 +8,12 @@ void quaternionToEuler(float [] q, float [] euler) {
   euler[2] = atan2(2 * q[2] * q[3] - 2 * q[0] * q[1], 2 * q[0] * q[0] + 2 * q[3] * q[3] - 1); // phi
 }
 
+void quaternionToYPR(float [] q, float [] ypr) {
+      ypr[0] = atan2((q[0] * q[1] + q[2] * q[3]), 0.5 - (q[1] * q[1] + q[2] * q[2]));
+      ypr[1] = asin(2.0 * (q[0] * q[2] - q[1] * q[3]));
+      ypr[2] = atan2((q[1] * q[2] + q[0] * q[3]), 0.5 - ( q[2] * q[2] + q[3] * q[3]));
+}
+
 float [] quatProd(float [] a, float [] b) {
   float [] q = new float[4];
 

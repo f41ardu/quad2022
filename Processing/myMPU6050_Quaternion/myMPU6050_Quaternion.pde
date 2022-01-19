@@ -39,6 +39,7 @@ int interval = 0;
 float [] q = new float [4];
 float [] hq = null;
 float [] Euler = new float [3]; // psi, theta, phi
+float [] ypr = new float [3]; // yaw, pitch, roll
 
 PImage img, img2;
 
