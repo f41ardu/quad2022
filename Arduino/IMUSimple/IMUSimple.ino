@@ -83,7 +83,7 @@ void setup(){
   setupMPURegister(); 
   calibrateMpu6050(); 
   
-  Serial.begin(115200);
+  Serial.begin(38400);
 }
 
 void loop(){
