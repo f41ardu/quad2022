@@ -18,10 +18,10 @@ void setupMPURegister() {
     Wire.endTransmission(true);              // End the transmission
 
     // Configure low pass filter
-//    Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-//    Wire.write(0x1A);                    // Request the CONFIG register
-//    Wire.write(0x03);                    // Set Digital Low Pass Filter about ~43Hz
-//    Wire.endTransmission(true);              // End the transmission
+    Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
+    Wire.write(0x1A);                    // Request the CONFIG register
+    Wire.write(0x03);                    // Set Digital Low Pass Filter about ~43Hz
+    Wire.endTransmission(true);              // End the transmission
 }
 
 void readSensor() {
@@ -73,3 +73,32 @@ void calibrateMpu6050() {
     gyro_offset[Z] /= max_samples;
 
 }
+
+/*
+// Define Tait-Bryan angles.
+      // Standard sensor orientation : X magnetic North, Y West, Z Up (NWU)
+      // this code corrects for magnetic declination.
+      // Pitch is angle between sensor x-axis and Earth ground plane, toward the
+      // Earth is positive, up toward the sky is negative. Roll is angle between
+      // sensor y-axis and Earth ground plane, y-axis up is positive roll.
+      // Tait-Bryan angles as well as Euler angles are
+      // non-commutative; that is, the get the correct orientation the rotations
+      // must be applied in the correct order.
+      //
+      // http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+      // which has additional links.
+      roll  = atan2((q[0] * q[1] + q[2] * q[3]), 0.5 - (q[1] * q[1] + q[2] * q[2]));
+      pitch = asin(2.0 * (q[0] * q[2] - q[1] * q[3]));
+      yaw   = atan2((q[1] * q[2] + q[0] * q[3]), 0.5 - ( q[2] * q[2] + q[3] * q[3]));
+      // to degrees
+      yaw   *= 180.0 / PI;
+      pitch *= 180.0 / PI;
+      roll *= 180.0 / PI;
+
+      // http://www.ngdc.noaa.gov/geomag-web/#declination
+      //conventional nav, yaw increases CW from North, corrected for local magnetic declination
+
+      yaw = -(yaw + declination);
+      if (yaw < 0) yaw += 360.0;
+      if (yaw >= 360.0) yaw -= 360.0;
+ */
