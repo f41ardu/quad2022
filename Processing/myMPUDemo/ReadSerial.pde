@@ -8,7 +8,7 @@ void serialEvent(Serial myPort) {
     msg = trim(split(myString, ','));
     // println(msg);
     for (i=0; i < msg.length; i++ ) {
-      value[i]=radians(float(msg[i]));
+      value[i]=(float(msg[i]));
       // print(value[i]); 
     } 
   }     
