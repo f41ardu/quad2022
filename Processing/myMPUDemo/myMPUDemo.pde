@@ -30,7 +30,7 @@ import processing.opengl.*;
       imageMode(CENTER);
       
       String portName="/dev/ttyUSB0";
-      myPort = new Serial(this, portName, 115200);
+      myPort = new Serial(this, portName, 38400);
       myPort.bufferUntil('\n');
       myPort.write('r');
       frameRate(100);
