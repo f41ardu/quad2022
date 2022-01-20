@@ -90,10 +90,10 @@ void loop(){
 
   readSensor();
  
- //     if(lastUpdate - firstUpdate > 10000000uL) {
- //       beta = 0.041; // decrease filter gain after stabilized
- //       zeta = 0.015; // increase gyro bias drift gain after stabilized
- //     }
+      if(lastUpdate - firstUpdate > 10000000uL) {
+        beta = 0.041; // decrease filter gain after stabilized
+        zeta = 0.015; // increase gyro bias drift gain after stabilized
+      }
   // Pass gyro rate as rad/s
   calculateGyroAngles(); 
   
