@@ -84,6 +84,7 @@ void loop(){
 
 #ifdef rollpitchyaw
 // use myMPUDemo
+  getQuaternions();
   quaternionToRollPitchYaw();  
   Serial.print(roll);
   Serial.print(",");
