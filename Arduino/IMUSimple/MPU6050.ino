@@ -25,6 +25,7 @@ void setupMPURegister() {
 }
 
 void readSensor() {
+
   Wire.beginTransmission(MPU_ADDRESS);
   Wire.write(0x3B);
   Wire.endTransmission(false);
@@ -38,43 +39,41 @@ void readSensor() {
   gyro_raw[X]=Wire.read()<<8|Wire.read();
   gyro_raw[Y]=Wire.read()<<8|Wire.read();
   gyro_raw[Z]=Wire.read()<<8|Wire.read();
-}
 
-/**
- * Calibrate MPU6050: take 2000 samples to calculate average offsets.
- * During this step, the quadcopter needs to be static and on a horizontal surface.
- *
- * This function also sends low throttle signal to each ESC to init and prevent them beeping annoyingly.
- *
- * This function might take ~2sec for 2000 samples.
- */
-void calibrateMpu6050() {
-    int max_samples = 1000;
-
-    for (int i = 0; i < max_samples; i++) {
-        readSensor();
-
+  if(!initialized) {
+     for (int i = 0; i < max_samples; i++) {
         gyro_offset[X] += gyro_raw[X];
         gyro_offset[Y] += gyro_raw[Y];
         gyro_offset[Z] += gyro_raw[Z];
-     
-        // Generate low throttle pulse to init ESC and prevent them beeping (need to be replaced in case of brushed engines)
-        PORTD |= B11110000;      // Set pins #4 #5 #6 #7 HIGH
-        delayMicroseconds(1000); // Wait 1000µs
-        PORTD &= B00001111;      // Then set LOW
-
         // Just wait a bit before next loop
         delay(3);
-    }
-
+    } 
     // Calculate average offsets
     gyro_offset[X] /= max_samples;
     gyro_offset[Y] /= max_samples;
     gyro_offset[Z] /= max_samples;
+    initialized = true;   
+  } else {   // Subtract offsets
+    gyro_raw[X] -= gyro_offset[X];
+    gyro_raw[Y] -= gyro_offset[Y];
+    gyro_raw[Z] -= gyro_offset[Z];
+  } 
+}
 
+void getQuaternions() {
+  readSensor();
+  if(lastUpdate - firstUpdate > 10000000uL) {
+      beta = 0.041; // decrease filter gain after stabilized
+      zeta = 0.015; // increase gyro bias drift gain after stabilized
+  }
+  Now = micros();
+  deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
+  lastUpdate = Now;
+  MadgwickQuaternionUpdate(ares*acc_raw[X], ares*acc_raw[Y], ares*acc_raw[Z], gres*gyro_raw[X] * pi_180, gres*gyro_raw[Y] * pi_180, gres*gyro_raw[Z] * pi_180); 
 }
 
 /*
+
 // Define Tait-Bryan angles.
       // Standard sensor orientation : X magnetic North, Y West, Z Up (NWU)
       // this code corrects for magnetic declination.
@@ -101,4 +100,4 @@ void calibrateMpu6050() {
       yaw = -(yaw + declination);
       if (yaw < 0) yaw += 360.0;
       if (yaw >= 360.0) yaw -= 360.0;
- /
+ */
