@@ -17,7 +17,8 @@
 #define sampleFreq  250.0f    // sample frequency in Hz
 #define betaDef   0.1f    // 2 * proportional gain
 
-
+// #define quaternions
+#define rollpitchyaw
 
 #include<Wire.h>
 #include <math.h>
@@ -67,6 +68,9 @@ void setup(){
 }
 
 void loop(){
+
+#ifdef quaternions   
+// use myMPU6050_quaternion
   getQuaternions();
   Serial.print(q[0]);
   Serial.print(",");
@@ -75,8 +79,18 @@ void loop(){
   Serial.print(q[2]);
   Serial.print(","); 
   Serial.println(q[3]);
-  
-  //delay(100);
+
+#endif
+
+#ifdef rollpitchyaw
+// use myMPUDemo
+  quaternionToRollPitchYaw();  
+  Serial.print(roll);
+  Serial.print(",");
+  Serial.print(pitch);
+  Serial.print(","); 
+  Serial.println(yaw);
+#endif 
 }
 
 
