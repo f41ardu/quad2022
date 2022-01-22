@@ -16,7 +16,7 @@
 //---------------------------------------------------------------------------------------------------
 // Definitions
 #define max_samples 2000
-#define sampleFreq  250.0f    // sample frequency in Hz
+//#define sampleFreq  250.0f    // sample frequency in Hz
 #define betaDef   0.1f    // 2 * proportional gain
 
 #define quaternions
