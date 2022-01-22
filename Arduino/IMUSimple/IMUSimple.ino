@@ -66,7 +66,7 @@ uint32_t Now = 0;  // used to calculate integration interval
  *
  * GYRO_CONFIG [0x00,0x08,0x010,0x18] 
  * range = +-  [250, 500, 1000, 2000] deg/s
- * Example set GYRO_CONFIG in setupMPURegister() to 0x05 for Range 500.0              
+ * Example set GYRO_CONFIG in setupMPURegister() to 0x08 for Range 500.0              
  */
 float gres = 500.0 / 32768.0;
 /*
