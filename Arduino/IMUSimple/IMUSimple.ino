@@ -1,3 +1,5 @@
+
+
 // quad2022 edition
 
 #define X           0     // X axis
@@ -13,20 +15,28 @@
 
 //---------------------------------------------------------------------------------------------------
 // Definitions
-#define max_samples 500
+#define max_samples 2000
 #define sampleFreq  250.0f    // sample frequency in Hz
 #define betaDef   0.1f    // 2 * proportional gain
 
-// #define quaternions
-#define rollpitchyaw
+#define quaternions
+//#define rollpitchyaw
 
 #include<Wire.h>
 #include <math.h>
 
 //---------------------------------------------------------------------------------------------------
+/**
+ * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
+ *  - Left wing up implies a positive roll
+ *  - Nose up implies a positive pitch
+ *  - Nose right implies a positive yaw
+ */
 // Variable definitions
-float q[4] = {1.0f, 0.0f, 0.0f, 0.0f}; 
-float roll = 0, pitch = 0, yaw = 0; 
+// The Quaternion 
+float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+// Roll, Pitch and Yaw angels in radian 
+float roll = 0.0f, pitch = 0.0f, yaw = 0.0f; 
 // ----------------------- MPU raw variables -------------------------------------
 // The RAW values got from gyro (in °/sec) in that order: X, Y, Z
 int16_t gyro_raw[3] = {0, 0, 0};
@@ -39,25 +49,32 @@ int16_t Temp = 0;
 long gyro_offset[3] = {0, 0, 0};
 long acc_offset[3]  = {0, 0, 0};
 
-/**
- * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
- *  - Left wing up implies a positive roll
- *  - Nose up implies a positive pitch
- *  - Nose right implies a positive yaw
- */
 // Init flag set to TRUE after IMU calibration
 boolean initialized = false;
 // parameters for 6 DoF sensor fusion calculations
+const float pi_180 = PI / 180.0f;
 float GyroMeasError = PI * (40.0f / 180.0f);     // gyroscope measurement error in rads/s (start at 60 deg/s), then reduce after ~10 s to 3
 float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // compute beta
 float GyroMeasDrift = PI * (2.0f / 180.0f);      // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
 float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;  // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
 float deltat = 0.0f;  
 uint32_t lastUpdate = 0, firstUpdate = 0;         // used to calculate integration interval
-uint32_t Now = 0;                                 // used to calculate integration interval
+uint32_t Now = 0;  // used to calculate integration interval
+/*
+ *  Mapping of the different gyro and accelero configurations:
+ *
+ *
+ * GYRO_CONFIG [0x00,0x08,0x010,0x18] 
+ * range = +-  [250, 500, 1000, 2000] deg/s
+ * Example set GYRO_CONFIG in setupMPURegister() to 0x05 for Range 500.0              
+ */
 float gres = 500.0 / 32768.0;
-float ares = 8.0 / 32768.0;
-const float pi_180 = PI / 180.0f;
+/*
+ *  ACC_CONFIG [0x00,0x08,0x10,0x18] 
+ *  range = +- [  2,   4,   8,   16 ] times the gravity (9.81 m/s^2)
+ * Example set ACC_CONFIG in setupMPURegister() to 0x10 for Range 8 
+ */
+float ares = 2.0 / 32768.0;
 // 
 void setup(){
   Wire.begin();
