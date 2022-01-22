@@ -77,9 +77,9 @@ void readSensor() {
 void getQuaternions() {
   readSensor();
   if(lastUpdate - firstUpdate > 10000000uL) {
-      beta = 0.041; // decrease filter gain after stabilized
-      zeta = 0.015; // increase gyro bias drift gain after stabilized
-  }
+      beta = 0.011; // decrease filter gain after stabilized 0.041
+      zeta = 0.035; // increase gyro bias drift gain after stabilized ß0.015
+   }
   Now = micros();
   deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
   lastUpdate = Now;
