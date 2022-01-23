@@ -63,6 +63,10 @@ void setup()
   delay(100);
   myPort.clear();
   myPort.write("1");
+  q[0] =1.0;
+  q[1] =0.0;
+  q[2] =0.0;
+  q[3] =0.0;
 }
 
 void draw() {
