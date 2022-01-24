@@ -13,6 +13,7 @@
 
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
 
+
 //---------------------------------------------------------------------------------------------------
 // Definitions
 #define max_samples 2000
@@ -73,7 +74,7 @@ float gres = 500.0 / 32768.0;
  *  range = +- [  2,   4,   8,   16 ] times the gravity (9.81 m/s^2)
  * Example set ACC_CONFIG in setupMPURegister() to 0x10 for Range 8 
  */
-float ares = 2.0 / 32768.0;
+float ares = 8.0 / 32768.0;
 // 
 void setup(){
   Wire.begin();
@@ -81,6 +82,7 @@ void setup(){
   setupMPURegister(); 
   
   Serial.begin(38400);
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop(){

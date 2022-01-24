@@ -56,7 +56,7 @@ void readSensor() {
   gyro_raw[Y]=Wire.read()<<8|Wire.read();
   gyro_raw[Z]=Wire.read()<<8|Wire.read();
 
-  if(!initialized) {
+  if(initialized != true) {
      for (int i = 0; i < max_samples; i++) {
         gyro_offset[X] += gyro_raw[X];
         gyro_offset[Y] += gyro_raw[Y];
@@ -79,8 +79,9 @@ void readSensor() {
 void getQuaternions() {
   readSensor();
   if(lastUpdate - firstUpdate > 10000000uL) {
-      beta = 0.011; // decrease filter gain after stabilized 0.041
-      zeta = 0.035; // increase gyro bias drift gain after stabilized 0.015
+      beta = 0.041; // decrease filter gain after stabilized 0.041
+      zeta = 0.060; // increase gyro bias drift gain after stabilized 0.015
+      digitalWrite(LED_BUILTIN, HIGH); 
    }
   Now = micros();
   deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
