@@ -37,7 +37,7 @@ void serialEvent(Serial myport) {
 void serialEvent(Serial myPort) {
   interval = millis();   
    
-  while ( myPort.available() > 0) {
+//  while ( myPort.available() > 0) {
     String myString = myPort.readStringUntil('\n');
     //println(myString);
     msg = trim(split(myString, ','));
@@ -47,5 +47,5 @@ void serialEvent(Serial myPort) {
       q[i] = float(msg[i]);
       // print(value[i]); 
     } 
-  }     
+//  }     
 }
