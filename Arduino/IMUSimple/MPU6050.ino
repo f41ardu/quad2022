@@ -80,7 +80,7 @@ void getQuaternions() {
   readSensor();
   if(lastUpdate - firstUpdate > 10000000uL) {
       beta = 0.041; // decrease filter gain after stabilized 0.041
-      zeta = 0.060; // increase gyro bias drift gain after stabilized 0.015
+      zeta = 0.015; // increase gyro bias drift gain after stabilized 0.015
       digitalWrite(LED_BUILTIN, HIGH); 
    }
   Now = micros();

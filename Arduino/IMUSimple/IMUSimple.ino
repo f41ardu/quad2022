@@ -61,7 +61,7 @@ float deltat = 0.0f;
 uint32_t lastUpdate = 0, firstUpdate = 0;         // used to calculate integration interval
 uint32_t Now = 0;  // used to calculate integration interval
 /*
- *  Mapping of the different gyro and accelero configurations:
+ *  Mapping of the different gyro and accqelero configurations:
  *
  *
  * GYRO_CONFIG [0x00,0x08,0x010,0x18] 
@@ -82,7 +82,6 @@ void setup(){
   setupMPURegister(); 
   
   Serial.begin(38400);
-  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop(){
