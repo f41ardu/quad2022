@@ -91,7 +91,7 @@ void draw() {
   textFont(font, 20);
   textAlign(LEFT, TOP);
   text("Q:\n" + nf(q[0], 1, 2) + "\n" + nf(q[1], 1, 2) + "\n" + nf(q[2], 1, 2) + "\n" + nf(q[3], 1, 2), 20, 20);
-  text("Euler Angles:\nYaw (psi)  : " + nf(degrees(Euler[0]), 3, 2) + "\nPitch (theta): " + nf(degrees(Euler[1]), 3, 2) + "\nRoll (phi)  : " + nf(degrees(Euler[2]), 3, 2), 200, 20);
+  text("Euler Angles:\nYaw (psi)  : " + nf(degrees(Euler[0]), 3, 4) + "\nPitch (theta): " + nf(degrees(Euler[1]), 3, 4) + "\nRoll (phi)  : " + nf(degrees(Euler[2]), 3, 4), 200, 20);
 
   drawCube();
 }
