@@ -11,7 +11,10 @@
 #define MPU6050_DLPF_BW_10          0x05
 #define MPU6050_DLPF_BW_5           0x06
 */
-#define MPU6050_DLPF_REG            0x1A
+#define MPU6050_ACC_CONFIG_REG      0x1C
+#define MPU6050_ACC_CONFIG          0x10
+
+#define MPU6050_DLPF_CONFIG_REG            0x1A
 #define MPU6050_DLPF_BW_42          0x03  // 
 
 void setupMPURegister() {
@@ -29,13 +32,13 @@ void setupMPURegister() {
 
     // Configure the acceleromter's sensitivity
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-    Wire.write(0x1C);                    // Request the ACCEL_CONFIG register
-    Wire.write(0x10);                    // Apply the desired configuration to the register : ±8g
+    Wire.write(MPU6050_ACC_CONFIG_REG);                    // Request the ACCEL_CONFIG register
+    Wire.write(MPU6050_ACC_CONFIG);                    // Apply the desired configuration to the register : ±8g
     Wire.endTransmission(true);              // End the transmission
 
     // Configure low pass filter
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-    Wire.write(#define MPU6050_DLPF_REG);                    // Request the CONFIG register
+    Wire.write(MPU6050_DLPF_CONFIG_REG);                    // Request the CONFIG register
     Wire.write(MPU6050_DLPF_BW_42);      // Set Digital Low Pass Filter about ~43Hz
     Wire.endTransmission(true);              // End the transmission
     
