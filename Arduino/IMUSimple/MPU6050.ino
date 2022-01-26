@@ -12,20 +12,23 @@
 #define MPU6050_DLPF_BW_5           0x06
 */
 
-#define MPU6050_GYRO_CONFIG_REG      0x1B
-#define MPU6050_GYRO_CONFIG          0x08
+#define MPU6050_PWR_MGMT_1_REG      0x6B
+#define MPU6050_PWR_MGMT_1          0x00
+
+#define MPU6050_GYRO_CONFIG_REG     0x1B
+#define MPU6050_GYRO_CONFIG         0x08
 
 #define MPU6050_ACC_CONFIG_REG      0x1C
 #define MPU6050_ACC_CONFIG          0x10
 
-#define MPU6050_DLPF_CONFIG_REG            0x1A
+#define MPU6050_DLPF_CONFIG_REG     0x1A
 #define MPU6050_DLPF_BW_42          0x03  // 
 
 void setupMPURegister() {
     // Configure power management
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-    Wire.write(0x6B);                    // Request the PWR_MGMT_1 register
-    Wire.write(0x00);                    // Apply the desired configuration to the register
+    Wire.write(MPU6050_PWR_MGMT_1_REG);                    // Request the PWR_MGMT_1 register
+    Wire.write(MPU6050_PWR_MGMT_1);                    // Apply the desired configuration to the register
     Wire.endTransmission(true);              // End the transmission
 
     // Configure the gyro's sensitivity
