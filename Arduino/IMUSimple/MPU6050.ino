@@ -11,6 +11,10 @@
 #define MPU6050_DLPF_BW_10          0x05
 #define MPU6050_DLPF_BW_5           0x06
 */
+
+#define MPU6050_GYRO_CONFIG_REG      0x1B
+#define MPU6050_GYRO_CONFIG          0x08
+
 #define MPU6050_ACC_CONFIG_REG      0x1C
 #define MPU6050_ACC_CONFIG          0x10
 
@@ -26,8 +30,8 @@ void setupMPURegister() {
 
     // Configure the gyro's sensitivity
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-    Wire.write(0x1B);                    // Request the GYRO_CONFIG register
-    Wire.write(0x08);                    // Apply the desired configuration to the register : ±500°/s
+    Wire.write(MPU6050_GYRO_CONFIG_REG);                    // Request the GYRO_CONFIG register
+    Wire.write(MPU6050_GYRO_CONFIG);                    // Apply the desired configuration to the register : ±500°/s
     Wire.endTransmission(true);              // End the transmission
 
     // Configure the acceleromter's sensitivity
