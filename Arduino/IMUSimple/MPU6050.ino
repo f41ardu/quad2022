@@ -11,6 +11,7 @@
 #define MPU6050_DLPF_BW_10          0x05
 #define MPU6050_DLPF_BW_5           0x06
 */
+#define MPU6050_DLPF_REG            0x1A
 #define MPU6050_DLPF_BW_42          0x03  // 
 
 void setupMPURegister() {
@@ -34,7 +35,7 @@ void setupMPURegister() {
 
     // Configure low pass filter
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
-    Wire.write(0x1A);                    // Request the CONFIG register
+    Wire.write(#define MPU6050_DLPF_REG);                    // Request the CONFIG register
     Wire.write(MPU6050_DLPF_BW_42);      // Set Digital Low Pass Filter about ~43Hz
     Wire.endTransmission(true);              // End the transmission
     
@@ -80,7 +81,7 @@ void getQuaternions() {
   readSensor();
   if(lastUpdate - firstUpdate > 10000000uL) {
       beta = 0.041; // decrease filter gain after stabilized 0.041
-      zeta = 0.060; // increase gyro bias drift gain after stabilized 0.015
+      zeta = 0.015; // increase gyro bias drift gain after stabilized 0.015
       digitalWrite(LED_BUILTIN, HIGH); 
    }
   Now = micros();
