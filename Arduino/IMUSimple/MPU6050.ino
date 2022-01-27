@@ -44,6 +44,7 @@ void setupMPURegister() {
     Wire.endTransmission(true);              // End the transmission
 
     // Configure low pass filter
+  
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
     Wire.write(MPU6050_DLPF_CONFIG_REG);                    // Request the CONFIG register
     Wire.write(MPU6050_DLPF_BW_42);      // Set Digital Low Pass Filter about ~43Hz
@@ -72,6 +73,11 @@ void readSensor() {
         gyro_offset[X] += gyro_raw[X];
         gyro_offset[Y] += gyro_raw[Y];
         gyro_offset[Z] += gyro_raw[Z];
+/*
+        acc_offset[X] += acc_raw[X];
+        acc_offset[Y] += acc_raw[Y];
+        acc_offset[Z] += acc_raw[Z];
+*/
         // Just wait a bit before next loop
         delay(3);
     } 
@@ -79,8 +85,18 @@ void readSensor() {
     gyro_offset[X] /= max_samples;
     gyro_offset[Y] /= max_samples;
     gyro_offset[Z] /= max_samples;
-    initialized = true;   
+/*
+    acc_offset[X] /= max_samples;
+    acc_offset[Y] /= max_samples;
+    acc_offset[Z] /= max_samples;
+*/
+    initialized = true;       
   } else {   // Subtract offsets
+/*
+    acc_raw[X] -= acc_offset[X];
+    acc_raw[Y] -= acc_offset[Y];
+    acc_raw[Z] -= acc_offset[Z];
+*/   
     gyro_raw[X] -= gyro_offset[X];
     gyro_raw[Y] -= gyro_offset[Y];
     gyro_raw[Z] -= gyro_offset[Z];
@@ -94,10 +110,12 @@ void getQuaternions() {
       zeta = 0.015; // increase gyro bias drift gain after stabilized 0.015
       digitalWrite(LED_BUILTIN, HIGH); 
    }
+  
   Now = micros();
   deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
   lastUpdate = Now;
-  MadgwickQuaternionUpdate(ares*acc_raw[X], ares*acc_raw[Y], ares*acc_raw[Z], gres*gyro_raw[X] * pi_180, gres*gyro_raw[Y] * pi_180, gres*gyro_raw[Z] * pi_180); 
+  MadgwickQuaternionUpdate(ares*acc_raw[X], ares*acc_raw[Y], ares*acc_raw[Z], gres*gyro_raw[X], gres*gyro_raw[Y], gres*gyro_raw[Z]); 
+  
 }
 
 /*

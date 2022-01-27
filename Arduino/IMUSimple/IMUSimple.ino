@@ -22,7 +22,7 @@
 //#define rollpitchyaw
 
 #include <Wire.h>
-#include <math.h>
+//#include <math.h>
 #include "test/test.h"
 
 //---------------------------------------------------------------------------------------------------
@@ -68,21 +68,22 @@ uint32_t Now = 0;  // used to calculate integration interval
  * range = +-  [250, 500, 1000, 2000] deg/s
  * Example set GYRO_CONFIG in setupMPURegister() to 0x08 for Range 500.0              
  */
-float gres = 500.0 / 32768.0;
+float gres = pi_180 * 500.0f / 32768.0f;
 /*
  *  ACC_CONFIG [0x00,0x08,0x10,0x18] 
  *  range = +- [  2,   4,   8,   16 ] times the gravity (9.81 m/s^2)
  * Example set ACC_CONFIG in setupMPURegister() to 0x10 for Range 8 
  */
-float ares = 8.0 / 32768.0;
+ float ares = 8.0f / 32768.0f;
 // 
 void setup(){
   Wire.begin();
   TWBR = 12; // Set the I2C clock speed to 400kHz.
   setupMPURegister(); 
-  
+  firstUpdate = micros();
   Serial.begin(38400);
   pinMode(LED_BUILTIN, OUTPUT);
+
 }
 
 void loop(){
