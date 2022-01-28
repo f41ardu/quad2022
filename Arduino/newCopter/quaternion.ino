@@ -1,4 +1,5 @@
 // parameters for 6 DoF sensor fusion calculations
+// start settings are required but somewhat arbitrary
 float GyroMeasError = PI * (40.0f / 180.0f);     // gyroscope measurement error in rads/s (start at 60 deg/s), then reduce after ~10 s to 3
 float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // compute beta
 float GyroMeasDrift = PI * (2.0f / 180.0f);      // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)

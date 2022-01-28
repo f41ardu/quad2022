@@ -27,6 +27,7 @@
 
 #include <Wire.h>
 #include "MPU6050.h"
+
 MPU6050lib mpu;
 
 float aRes, gRes; // scale resolutions per LSB for the sensors
@@ -69,7 +70,15 @@ void loop()
 {
   
   imuCalc(); 
+    /*
+        Serial.print("ax = "); Serial.print((int)1000*ax);
+        Serial.print(" ay = "); Serial.print((int)1000*ay);
+        Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
 
+        Serial.print("gyrox = "); Serial.print( gyrox, 1);
+        Serial.print(" gyroy = "); Serial.print( gyroy, 1);
+        Serial.print(" gyroz = "); Serial.print( gyroz, 1); Serial.println(" deg/s");
+*/
      /*   Serial.print(q[0]);
         Serial.print("," );
         Serial.print(q[1]);
@@ -86,5 +95,5 @@ void loop()
     
    
    
-  }
+  
 }
