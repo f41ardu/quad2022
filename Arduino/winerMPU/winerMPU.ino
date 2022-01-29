@@ -47,6 +47,11 @@ uint32_t delt_t = 0; // used to control display output rate
 uint32_t count = 0;  // used to control display output rate
 float pitch, yaw, roll;
 float deltat = 0.0f;                              // integration interval for both filter schemes
+// parameters for 6 DoF sensor fusion calculations
+float GyroMeasError = PI * (40.0f / 180.0f);     // gyroscope measurement error in rads/s (start at 60 deg/s), then reduce after ~10 s to 3
+float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // compute beta
+float GyroMeasDrift = PI * (2.0f / 180.0f);      // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
+float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;  // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
 
 uint32_t lastUpdate = 0, firstUpdate = 0;         // used to calculate integration interval
 uint32_t Now = 0;                                 // used to calculate integration interval
@@ -82,20 +87,20 @@ void loop()
         Serial.print(" gyroy = "); Serial.print( gyroy, 1);
         Serial.print(" gyroz = "); Serial.print( gyroz, 1); Serial.println(" deg/s");
 */
-     /*   Serial.print(q[0]);
+        Serial.print(q[0]);
         Serial.print("," );
         Serial.print(q[1]);
         Serial.print(","); 
         Serial.print(q[2]);
         Serial.print(","); 
         Serial.println(q[3]);
-        */
+ /*       
         Serial.print(roll);
         Serial.print(", ");
         Serial.print(pitch);
         Serial.print(", ");
         Serial.println(yaw);
-    
+*/    
     // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
     // In this coordinate system, the positive z-axis is down toward Earth.
     // Yaw is the angle between Sensor x-axis and Earth magnetic North (or true North if corrected for local declination, looking down on the sensor positive yaw is counterclockwise.

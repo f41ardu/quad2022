@@ -72,10 +72,10 @@ void imuCalc() {
   Now = micros();
   deltat = ((Now - lastUpdate) / 1000000.0f); // set integration time by time elapsed since last filter update
   lastUpdate = Now;
-  //    if(lastUpdate - firstUpdate > 10000000uL) {
-  //      beta = 0.041; // decrease filter gain after stabilized
-  //      zeta = 0.015; // increase gyro bias drift gain after stabilized
-  //    }
+      if(lastUpdate - firstUpdate > 10000000uL) {
+        beta = 0.041; // decrease filter gain after stabilized
+        zeta = 0.015; // increase gyro bias drift gain after stabilized
+      }
   // Pass gyro rate as rad/s
   MadgwickQuaternionUpdate(ax, ay, az, gyrox * PI / 180.0f, gyroy * PI / 180.0f, gyroz * PI / 180.0f);
 }

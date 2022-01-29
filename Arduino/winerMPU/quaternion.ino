@@ -1,8 +1,4 @@
-// parameters for 6 DoF sensor fusion calculations
-float GyroMeasError = PI * (40.0f / 180.0f);     // gyroscope measurement error in rads/s (start at 60 deg/s), then reduce after ~10 s to 3
-float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // compute beta
-float GyroMeasDrift = PI * (2.0f / 180.0f);      // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;  // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
+
 
 // Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
 // (see http://www.x-io.co.uk/category/open-source/ for examples and more details)
