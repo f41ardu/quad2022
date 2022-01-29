@@ -36,8 +36,8 @@
 
 // Pin definitions
 int intPin = 12;  // These can be changed, 2 and 3 are the Arduinos ext int pins
-float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};            // vector to hold quaternion 
-float roll, pitch, yaw = 0.0f;                      // store roll, pitch and yaw 
+float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};            // vector to hold quaternion (move to IMU) when ready
+float roll, pitch, yaw = 0.0f;                    // store roll, pitch and yaw in radians
 
 
 void setup()
