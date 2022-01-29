@@ -18,8 +18,8 @@
 // Definitions
 #define max_samples 2000
 
-#define quaternions
-//#define rollpitchyaw
+//#define quaternions
+#define rollpitchyaw
 
 #include <Wire.h>
 //#include <math.h>
@@ -103,6 +103,7 @@ void loop(){
 
 #ifdef rollpitchyaw
 // use myMPUDemo
+  
   getQuaternions();
   quaternionToRollPitchYaw();  
   Serial.print(roll);
