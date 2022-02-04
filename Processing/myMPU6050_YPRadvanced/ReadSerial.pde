@@ -53,7 +53,7 @@ void serialEvent(Serial myPort) {
     q[1] = float(msg[1]);
     q[2] = float(msg[2]);
     q[3] = float(msg[3]);
-    freq = 1/float(msg[4])*1e6;
+    freq = float(msg[4]);
     
 //  }     
 }

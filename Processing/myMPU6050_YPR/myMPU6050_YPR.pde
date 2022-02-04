@@ -34,13 +34,14 @@ String[] msg=new String[60];
 int serialCount = 0;                 // current packet byte position
 int synced = 0;
 int interval = 0;
+int startTime = 0;
 float freq = 0; 
 // it migh be a good idea to make use of the toxi lib
 float [] q = new float [4];
 float [] hq = null;
 float [] Euler = new float [3]; // psi, theta, phi
 float [] ypr = new float [3]; // yaw, pitch, roll
-
+float delta = 0; 
 PImage img, img2;
 
 PFont font;
@@ -67,13 +68,13 @@ void setup()
   q[1] =0.0;
   q[2] =0.0;
   q[3] =0.0;
-  delay(2000);
+  delay(4000);
 }
 
 void draw() {
   background(0);
 //  fill(#ffffff);
-
+   
   if (millis() - interval > 500) {
     // resend single character to trigger DMP init/start
     // in case the MPU is halted/reset while applet is running
@@ -82,17 +83,18 @@ void draw() {
   }
 
   if (hq != null) { // use home quaternion
-    quaternionToEuler(quatProd(hq, q), Euler);
+    quaternionToYPR(quatProd(hq, q), Euler);
     text("Disable home position by pressing \"n\"", 20, VIEW_SIZE_Y - 30);
   } else {
-    quaternionToEuler(q, Euler);
+    quaternionToYPR(q, Euler);
     text("Point Sensor's X axis to your monitor then press \"h\"", 20, VIEW_SIZE_Y - 30);
   }
-
+   
+  
   textFont(font, 20);
   textAlign(LEFT, TOP);
   text("Q:\n" + nf(q[0], 1, 2) + "\n" + nf(q[1], 1, 2) + "\n" + nf(q[2], 1, 2) + "\n" + nf(q[3], 1, 2), 20, 20);
-  text("Euler Angles:\nYaw (psi)  : " + nf(degrees(Euler[0]), 3, 2) 
+  text("Euler Angles: Yaw (psi)  : " + nf(degrees(Euler[0]), 3, 2)  + "\nDelta Euler: " + nf(degrees(Euler[2] - delta), 3, 2 ) + "\n′°/s Euler: " + nf(degrees(Euler[2] - delta)/(1e-3*(millis()-startTime)), 0, 5 )   
         + "\nPitch (theta): " + nf(degrees(Euler[1]), 3, 2) + "\nRoll (phi)  : " + nf(degrees(Euler[2]), 3, 2) +"\nFreq (Hz)  :" +freq, 200, 20);
 
   drawCube();
@@ -106,5 +108,8 @@ void keyPressed() {
   } else if (key == 'n') {
     println("pressed n");
     hq = null;
+  } else if (key == 'r' ){
+    delta = Euler[2];
+    startTime = millis(); 
   }
 }
