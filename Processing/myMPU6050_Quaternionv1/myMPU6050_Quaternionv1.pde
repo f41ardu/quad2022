@@ -50,7 +50,7 @@ void setup()
 {
   size(1000, 800, P3D);
   String serialPort = "/dev/ttyUSB0";
-  myPort = new Serial(this, serialPort, 38400);  
+  myPort = new Serial(this, serialPort, 115200);  
   myPort.bufferUntil('\n');
       myPort.write('r');
 // The font and the images must be located in the sketch's "data" directory to load successfully
