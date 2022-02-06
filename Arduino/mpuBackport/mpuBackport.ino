@@ -12,14 +12,16 @@
 #define THROTTLE 3
 
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
-
+#define FREQ 250
+#define SSF_GYRO 65.5
 
 //---------------------------------------------------------------------------------------------------
 // Definitions
 #define max_samples 2000
 
-#define quaternions
+//#define quaternions
 //#define rollpitchyaw
+#define COPTER
 
 #include <Wire.h>
 //#include <math.h>
@@ -36,11 +38,27 @@
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};
 // Roll, Pitch and Yaw angels in radian 
 float roll = 0.0f, pitch = 0.0f, yaw = 0.0f; 
-// ----------------------- MPU raw variables -------------------------------------
+// ----------------------- MPU variables -------------------------------------
 // The RAW values got from gyro (in °/sec) in that order: X, Y, Z
 int16_t gyro_raw[3] = {0, 0, 0};
+// Calculated angles from gyro's values in that order: X, Y, Z
+float gyro_angle[3]  = {0,0,0};
 // The RAW values got from accelerometer (in m/sec²) in that order: X, Y, Z
 int16_t acc_raw[3] = {0 ,0 ,0};
+// Calculated angles from accelerometer's values in that order: X, Y, Z
+float acc_angle[3] = {0,0,0};
+// Total 3D acceleration vector in m/s²
+long acc_total_vector;
+
+// Calculated angular motion on each axis: Yaw, Pitch, Roll
+float angular_motions[3] = {0, 0, 0};
+/**
+ * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
+ *  - Left wing up implies a positive roll
+ *  - Nose up implies a positive pitch
+ *  - Nose right implies a positive yaw
+ */
+float measures[3] = {0, 0, 0};
 // The RAW values got from accelerometer
 int16_t Temp = 0; 
 
@@ -110,4 +128,23 @@ void loop(){
   Serial.print(","); 
   Serial.println(yaw);
 #endif 
+
+#ifdef COPTER
+  readSensor();
+  calculateAngles();
+  Serial.print(measures[ROLL]);
+  Serial.print(",");
+  Serial.print(measures[PITCH]);
+  Serial.print(","); 
+  Serial.print(measures[YAW]);
+  Serial.print(","); 
+  Serial.print(angular_motions[ROLL]);
+  Serial.print(","); 
+  Serial.print(angular_motions[PITCH]);
+  Serial.print(","); 
+  Serial.println(angular_motions[YAW]);
+#endif  
+  
+  
+
 }
