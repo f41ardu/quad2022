@@ -80,7 +80,7 @@ void setup(){
   TWBR = 12; // Set the I2C clock speed to 400kHz.
   setupMPURegister(); 
   firstUpdate = micros();
-  Serial.begin(38400);
+  Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
 
 }
