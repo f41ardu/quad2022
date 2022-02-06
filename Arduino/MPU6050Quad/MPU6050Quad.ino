@@ -1,45 +1,4 @@
-// I2C device class (I2Cdev) demonstration Arduino sketch for MPU6050 class using DMP (MotionApps v2.0)
-// 6/21/2012 by Jeff Rowberg <jeff@rowberg.net>
-// Updates should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
-//
-// Changelog:
-//      2013-05-08 - added seamless Fastwire support
-//                 - added note about gyro calibration
-//      2012-06-21 - added note about Arduino 1.0.1 + Leonardo compatibility error
-//      2012-06-20 - improved FIFO overflow handling and simplified read process
-//      2012-06-19 - completely rearranged DMP initialization code and simplification
-//      2012-06-13 - pull gyro and accel data from FIFO packet instead of reading directly
-//      2012-06-09 - fix broken FIFO read sequence and change interrupt detection to RISING
-//      2012-06-05 - add gravity-compensated initial reference frame acceleration output
-//                 - add 3D math helper file to DMP6 example sketch
-//                 - add Euler output and Yaw/Pitch/Roll output formats
-//      2012-06-04 - remove accel offset clearing for better results (thanks Sungon Lee)
-//      2012-06-01 - fixed gyro sensitivity to be 2000 deg/sec instead of 250
-//      2012-05-30 - basic DMP initialization working
 
-/* ============================================
-I2Cdev device library code is placed under the MIT license
-Copyright (c) 2012 Jeff Rowberg
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-===============================================
-*/
 
 // I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
 // for both classes must be in the include path of your project
@@ -122,6 +81,19 @@ MPU6050 mpu;
 //#define GYROMOTION_FROM_FIFO
 #define AXXELGYRO
 
+#define X           0     // X axis
+#define Y           1     // Y axis
+#define Z           2     // Z axis
+
+#define YAW      0
+#define PITCH    1
+#define ROLL     2
+#define THROTTLE 3
+
+#define FREQ        250   // Sampling frequency
+#define SSF_GYRO    65.5  // Sensitivity Scale Factor of the gyro from datasheet
+
+
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 bool blinkState = false;
 
@@ -133,21 +105,30 @@ uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
 
-// orientation/motion vars
-Quaternion q;           // [w, x, y, z]         quaternion container
-VectorInt16 aa;         // [x, y, z]            accel sensor measurements
-VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
-VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
-VectorFloat gravity;    // [x, y, z]            gravity vector
-float euler[3];         // [psi, theta, phi]    Euler angle container
-float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 float ax,ay,az,gx,gy,gz;
-// packet structure for InvenSense teapot demo
-uint8_t teapotPacket[14] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\n' };
 
-// packet structure for the AccelerometerDemo
-uint8_t accelerometerPacket[10] = { 'A', 0,0, ';', 0,0, ';', 0,0, '\n' };
-uint8_t gyroPacket[10] = { 'G', 0,0, ';', 0,0, ';', 0,0, '\n' };
+// Calculated angles from gyro's values in that order: X, Y, Z
+float gyro_angle[3]  = {0,0,0};
+
+// Calculated angles from accelerometer's values in that order: X, Y, Z
+float acc_angle[3] = {0,0,0};
+
+// Total 3D acceleration vector in m/s²
+long acc_total_vector;
+
+// Calculated angular motion on each axis: Yaw, Pitch, Roll
+float angular_motions[3] = {0, 0, 0};
+
+/**
+ * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
+ *  - Left wing up implies a positive roll
+ *  - Nose up implies a positive pitch
+ *  - Nose right implies a positive yaw
+ */
+float measures[3] = {0, 0, 0};
+
+// Init flag set to TRUE after first loop
+boolean initialized = false;
 
 // ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
@@ -292,135 +273,74 @@ void loop() {
         // track FIFO count here in case there is > 1 packet available
         // (this lets us immediately read more without waiting for an interrupt)
         fifoCount -= packetSize;
-
-        #ifdef OUTPUT_READABLE_QUATERNION
-            // display quaternion values in easy matrix form: w x y z
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            Serial.print("quat\t");
-            Serial.print(q.w);
-            Serial.print("\t");
-            Serial.print(q.x);
-            Serial.print("\t");
-            Serial.print(q.y);
-            Serial.print("\t");
-            Serial.println(q.z);
-        #endif
-
-        #ifdef OUTPUT_READABLE_EULER
-            // display Euler angles in radians
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetEuler(euler, &q);
-//            Serial.print("euler\t");
-            Serial.print(euler[0]);
-            Serial.print(",");
-            Serial.print(euler[1]);
-            Serial.print(",");
-            Serial.println(euler[2]);
-        #endif
-
-        #ifdef OUTPUT_READABLE_YAWPITCHROLL
-            // display Euler angles in radians
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-       //     Serial.print("ypr\t");
-            Serial.print(ypr[2]);
-            Serial.print(",");
-            Serial.print(ypr[1]);
-            Serial.print(",");
-            Serial.println(ypr[0]);
-        #endif
-
-       
-
-        #ifdef OUTPUT_READABLE_WORLDACCEL
-            // display initial world-frame acceleration, adjusted to remove gravity
-            // and rotated based on known orientation from quaternion
-//            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetAccel(&aa, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-            mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
-            Serial.print(",");
-            Serial.print(aaWorld.x);
-            Serial.print(",");
-            Serial.print(aaWorld.y);
-            Serial.print(",");
-            Serial.println(aaWorld.z);
-        #endif
-
-        #ifdef OUTPUT_READABLE_REALACCEL
-            // display real acceleration, adjusted to remove gravity
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetAccel(&aa, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-            Serial.print(",");
-            Serial.print(aaReal.x);
-            Serial.print(",");
-            Serial.print(aaReal.y);
-            Serial.print(",");
-            Serial.println(aaReal.z);
-        #endif
-    
-        #ifdef OUTPUT_TEAPOT
-            // display quaternion values in InvenSense Teapot demo format:
-            teapotPacket[2] = fifoBuffer[0];
-            teapotPacket[3] = fifoBuffer[1];
-            teapotPacket[4] = fifoBuffer[4];
-            teapotPacket[5] = fifoBuffer[5];
-            teapotPacket[6] = fifoBuffer[8];
-            teapotPacket[7] = fifoBuffer[9];
-            teapotPacket[8] = fifoBuffer[12];
-            teapotPacket[9] = fifoBuffer[13];
-            Serial.write(teapotPacket, 14);
-            teapotPacket[11]++; // packetCount, loops at 0xFF on purpose
-        #endif
-
-        #ifdef ACCELERATION_FROM_FIFO
-            accelerometerPacket[1] = fifoBuffer[28]; // X
-            accelerometerPacket[2] = fifoBuffer[29];
-            accelerometerPacket[4] = fifoBuffer[32]; // Y
-            accelerometerPacket[5] = fifoBuffer[33];
-            accelerometerPacket[7] = fifoBuffer[36]; // Z
-            accelerometerPacket[8] = fifoBuffer[37];
-            Serial.write(accelerometerPacket, 10);
-        #endif
-
-        #ifdef GYROMOTION_FROM_FIFO
-            gyroPacket[1] = fifoBuffer[16]; // X
-            gyroPacket[2] = fifoBuffer[17];
-            gyroPacket[4] = fifoBuffer[20]; // Y
-            gyroPacket[5] = fifoBuffer[21];
-            gyroPacket[7] = fifoBuffer[24]; // Z
-            gyroPacket[8] = fifoBuffer[25];
-            Serial.println(gyroPacket[1] << 8| gyroPacket[2]);
-            Serial.write(gyroPacket, 10);
-        #endif
-        #ifdef AXXELGYRO    
         
-           ax = fifoBuffer[28] << 8 | fifoBuffer[29];
-           ay = fifoBuffer[32] << 8 | fifoBuffer[33];
-           az = fifoBuffer[36] << 8 | fifoBuffer[37];      
+           ax = (fifoBuffer[28] << 8 | fifoBuffer[29])/8173.;
+           ay = (fifoBuffer[32] << 8 | fifoBuffer[33])/8173.;
+           az = (fifoBuffer[36] << 8 | fifoBuffer[37])/8173.;      
            gx = (fifoBuffer[16] << 8 | fifoBuffer[17]);
            gy = (fifoBuffer[20] << 8 | fifoBuffer[21]);
            gz = (fifoBuffer[24] << 8 | fifoBuffer[25]);
           
-           Serial.print(ax/(0.5*16348.));
-           Serial.print(",");
-           Serial.print(ay/(0.5*16348.));
-           Serial.print(",");
-           Serial.print(az/(0.5*16348.));
-           Serial.print(",");
-           Serial.print(gx*(250./16348.)); // *.5? 
-           Serial.print(",");
-           Serial.print(gy*(250./16348.));
-           Serial.print(",");
-           Serial.println(gz*(250./16348.));
-      #endif
+            // Angle calculation using integration
+           gyro_angle[X] += (gx / (FREQ * SSF_GYRO));
+           gyro_angle[Y] += (gy / (FREQ * SSF_GYRO)); // Change sign to match the accelerometer's one
+
+           // Transfer roll to pitch if IMU has yawed
+           gyro_angle[Y] += gx * sin(gz * (PI / (FREQ * SSF_GYRO * 180)));
+           gyro_angle[X] -= gy * sin(gz * (PI / (FREQ * SSF_GYRO * 180)));
+
+           
+           // Calculate total 3D acceleration vector : √(X² + Y² + Z²)
+    acc_total_vector = sqrt(pow(ax, 2) + pow(ay, 2) + pow(az, 2));
+
+    // To prevent asin to produce a NaN, make sure the input value is within [-1;+1]
+    if (abs(ax) < acc_total_vector) {
+        acc_angle[X] = asin((float)ay / acc_total_vector) * (180 / PI); // asin gives angle in radian. Convert to degree multiplying by 180/pi
+    }
+
+    if (abs(ay) < acc_total_vector) {
+        acc_angle[Y] = asin((float)ax / acc_total_vector) * (180 / PI);
+    }
+
+     if (initialized) {
+     gyro_angle[X] = gyro_angle[X] * 0.9996 + acc_angle[X] * 0.0004;
+     gyro_angle[Y] = gyro_angle[Y] * 0.9996 + acc_angle[Y] * 0.0004;
+      } else {
+        // At very first start, init gyro angles with accelerometer angles
+        resetGyroAngles();
+
+        initialized = true;
+    }
+     // To dampen the pitch and roll angles a complementary filter is used
+    measures[ROLL]  = measures[ROLL]  * 0.98 + gyro_angle[X] * 0.2;
+    measures[PITCH] = measures[PITCH] * 0.98 + gyro_angle[Y] * 0.2;
+    measures[YAW]   = -gz / SSF_GYRO; // Store the angular motion for this axis
+
+    // Apply low-pass filter (10Hz cutoff frequency)
+    angular_motions[ROLL]  = 0.7 * angular_motions[ROLL]  + 0.3 * gx / SSF_GYRO;
+    angular_motions[PITCH] = 0.7 * angular_motions[PITCH] + 0.3 * gy / SSF_GYRO;
+    angular_motions[YAW]   = 0.7 * angular_motions[YAW]   + 0.3 * gz / SSF_GYRO;
+
+   /* Serial.print("AccX = "); Serial.print(ax);
+  Serial.print(" || RAccY = "); Serial.print(ay);
+  Serial.print(" || RAccZ = "); Serial.print(az);
+  Serial.print(" || RGyroX = "); Serial.print(gx);
+  Serial.print(" || RGyroY = "); Serial.print(gy);
+  Serial.print(" || RGyroZ = "); Serial.print(gz);
+  */
+    Serial.print(angular_motions[ROLL]);
+    Serial.print(",");
+    Serial.print(angular_motions[PITCH]);
+    Serial.print(","); 
+    Serial.println(angular_motions[YAW]);
            
         // blink LED to indicate activity
         blinkState = !blinkState;
         digitalWrite(LED_PIN, blinkState);
     }
+}
+
+void resetGyroAngles() {
+    gyro_angle[X] = acc_angle[X];
+    gyro_angle[Y] = acc_angle[Y];
 }
