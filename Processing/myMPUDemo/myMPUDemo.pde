@@ -30,7 +30,7 @@ import processing.opengl.*;
       imageMode(CENTER);
       
       String portName="/dev/ttyUSB0";
-      myPort = new Serial(this, portName, 38400);
+      myPort = new Serial(this, portName, 115200);
       myPort.bufferUntil('\n');
       myPort.write('r');
       frameRate(100);
@@ -42,13 +42,13 @@ import processing.opengl.*;
 
     void draw()
     {
-  /*     if (millis() - interval > 1000) {
+      if (millis() - interval > 1000) {
          // resend single character to trigger DMP init/start
          // in case the MPU is halted/reset while applet is running
          myPort.write('r');
          interval = millis();
         }
-  */ 
+   
     // black background
     background(0);
     // translate everything to the middle of the viewport
