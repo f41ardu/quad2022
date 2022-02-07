@@ -1,4 +1,4 @@
-// quad2022 edition v.01
+// quad2022 edition v.02
 /**
  * Calculate pitch & roll angles using only the gyro.
  */
@@ -36,12 +36,11 @@ void calculateAngles() {
     } else {
         // At very first start, init gyro angles with accelerometer angles
         resetGyroAngles();
-
         initialized = true;
     }
     // To dampen the pitch and roll angles a complementary filter is used
-    measures[ROLL]  = measures[ROLL]  * 0.98 + gyro_angle[X] * 0.2;
-    measures[PITCH] = measures[PITCH] * 0.98 + gyro_angle[Y] * 0.2;
+    measures[ROLL]  = measures[ROLL]  * 0.9 + gyro_angle[X] * 0.1;
+    measures[PITCH] = measures[PITCH] * 0.9 + gyro_angle[Y] * 0.1;
     measures[YAW]   = -gyro_raw[Z]; // Store the angular motion for this axis
 
     // Apply low-pass filter (10Hz cutoff frequency)

@@ -1,4 +1,4 @@
-// quad2022 edition v.01
+// quad2022 edition v.02
 // see also https://medium.com/@kavindugimhanzoysa/lets-work-with-mpu6050-gy-521-part1-6db0d47a35e6
 #define X           0     // X axis
 #define Y           1     // Y axis
@@ -12,8 +12,14 @@
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
 //#define FREQ        250   // Sampling frequency
 #define SSF_GYRO    1  // Sensitivity Scale Factor of the gyro from datasheet
-#define SCALE_ACC  8182
+#define SCALE_ACC  8182 
 #define SCALE_GYRO 65.5
+
+// output 
+#define ALL
+//#define MEASURES
+//#define ANGULAR
+
 
 #include<Wire.h>
 
@@ -22,8 +28,8 @@
 int16_t gyro_raw[3] = {0,0,0};
 
 // Average gyro offsets of each axis in that order: X, Y, Z
-long gyro_offset[3] = {0, 0, 0};
-long acc_offset[3] = {0, 0, 0};
+int16_t gyro_offset[3] = {0, 0, 0};
+int16_t acc_offset[3] = {0, 0, 0};
 
 // Calculated angles from gyro's values in that order: X, Y, Z
 float gyro_angle[3]  = {0,0,0};
@@ -54,7 +60,7 @@ float measures[3] = {0, 0, 0};
 // MPU Temperature
 int Temp; 
 // Init flag set to TRUE after first loop
-boolean initialized = false;
+boolean initialized;
 
 // 
 void setup(){
@@ -74,18 +80,36 @@ void loop(){
   Freq = 1.e6/(Now - lastUpdate);
     
   calculateAngles(); 
- 
-  Serial.print(measures[ROLL]);
-  Serial.print(",");
-  Serial.print(measures[PITCH]);
-  Serial.print(","); 
-  Serial.print(measures[YAW]);
-  Serial.print(","); 
-  Serial.print(angular_motions[ROLL]);
-  Serial.print(",");
-  Serial.print(angular_motions[PITCH]);
-  Serial.print(","); 
-  Serial.println(angular_motions[YAW]);
+  #ifdef ALL
+    Serial.print(measures[ROLL]);
+    Serial.print(",");
+    Serial.print(measures[PITCH]);
+    Serial.print(","); 
+    Serial.print(measures[YAW]);
+    Serial.print(","); 
+    Serial.print(angular_motions[ROLL]);
+    Serial.print(",");
+    Serial.print(angular_motions[PITCH]);
+    Serial.print(","); 
+    Serial.println(angular_motions[YAW]);
+  #endif
+
+  #ifdef MEASURES
+    Serial.print(measures[ROLL]);
+    Serial.print(",");
+    Serial.print(measures[PITCH]);
+    Serial.print(","); 
+  //  Serial.print(measures[YAW]);
+    Serial.print("\n");
+ #endif
+ #ifdef ANGULAR 
+    Serial.print(angular_motions[ROLL]);
+    Serial.print(",");
+    Serial.print(angular_motions[PITCH]);
+    Serial.print(","); 
+    Serial.print(angular_motions[YAW]);
+    Serial.print("\n");
+  #endif
   lastUpdate = Now;
   //delay(100);
 }

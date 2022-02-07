@@ -1,4 +1,4 @@
-// quad2022 edition v.01
+// quad2022 edition v.02
 void setupMPURegister() {
     // Configure power management
     Wire.beginTransmission(MPU_ADDRESS); // Start communication with MPU
