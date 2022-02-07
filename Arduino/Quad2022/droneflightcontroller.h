@@ -11,7 +11,7 @@
 #define ROLL     2
 #define THROTTLE 3
 
-// axis
+// accelerometer axis
 #define X           0     // X axis
 #define Y           1     // Y axis
 #define Z           2     // Z axis
@@ -20,7 +20,7 @@
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
 #define SCALE_ACC  8182 
 #define SCALE_GYRO 65.5
-
+// RC helper
 #define STOPPED  0
 #define STARTING 1
 #define STARTED  2
@@ -39,26 +39,26 @@ volatile unsigned long timer[4]; // Timer of each channel
 int mode_mapping[4];
 // ----------------------- MPU variables -------------------------------------
 // The RAW values got from gyro (in °/sec) in that order: X, Y, Z
-int gyro_raw[3] = {0,0,0};
+int16_t gyro_raw[3] = {0,0,0};
 
 // Average gyro offsets of each axis in that order: X, Y, Z
-long gyro_offset[3] = {0, 0, 0};
+int16_t gyro_offset[3] = {0, 0, 0};
 
 // Calculated angles from gyro's values in that order: X, Y, Z
 float gyro_angle[3]  = {0,0,0};
 
 // The RAW values got from accelerometer (in m/sec²) in that order: X, Y, Z
-int acc_raw[3] = {0 ,0 ,0};
+int16_t acc_raw[3] = {0 ,0 ,0};
 
 
 // Average acc offsets of each axis in that order: X, Y, Z
-long acc_offset[3] = {0, 0, 0};
+int16_t acc_offset[3] = {0, 0, 0};
 
 // Calculated angles from accelerometer's values in that order: X, Y, Z
 float acc_angle[3] = {0,0,0};
 
 // Total 3D acceleration vector in m/s²
-long acc_total_vector;
+float acc_total_vector;
 
 // Calculated angular motion on each axis: Yaw, Pitch, Roll
 float angular_motions[3] = {0, 0, 0};

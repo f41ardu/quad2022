@@ -8,8 +8,6 @@
 #include "servo2.h"
 #include "droneflightcontroller.h"
 
-
-
 void setup(){
   Wire.begin();
   TWBR = 12; // Set the I2C clock speed to 400kHz.
@@ -29,11 +27,12 @@ void setup(){
 }
 
 void loop(){
-
+   // 1. First, read raw values from MPU-6050
   readSensor();
+  // Measure update freqncy 
   Now = micros() ;//Reset the loop timer
   Freq = 1.e6/(Now - lastUpdate);
-    
+  // 2. Calculate angles from gyro & accelerometer's values
   calculateAngles(); 
 
   // 3. Calculate set points of PID controller
@@ -44,7 +43,7 @@ void loop(){
 
      // 4. Calculate errors comparing angular motions to set points
     calculateErrors();
-
+/*
     if (isStarted()) {
         // 5. Calculate motors speed with PID controller
         pidController();
@@ -54,7 +53,7 @@ void loop(){
 
     // 6. Apply motors speed
     applyMotorSpeed();
-
+*/
   
   #ifdef ALL
     Serial.print(measures[ROLL]);
