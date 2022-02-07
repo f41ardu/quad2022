@@ -1,4 +1,4 @@
-// quad2022 edition
+// quad2022 edition v.01
 // see also https://medium.com/@kavindugimhanzoysa/lets-work-with-mpu6050-gy-521-part1-6db0d47a35e6
 #define X           0     // X axis
 #define Y           1     // Y axis
@@ -40,9 +40,9 @@ long acc_total_vector;
 // Calculated angular motion on each axis: Yaw, Pitch, Roll
 float angular_motions[3] = {0, 0, 0};
 
-// float ares = 8.0f / 32768.0f;
-int lastUpdate = 0; 
-int Freq, Now;
+// integration timer 
+int  lastUpdate = 0; 
+int  Freq, Now;
 /**
  * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
  *  - Left wing up implies a positive roll
@@ -62,7 +62,8 @@ void setup(){
   TWBR = 12; // Set the I2C clock speed to 400kHz.
   setupMPURegister(); 
   calibrateMpu6050(); 
-  
+  lastUpdate = micros(); 
+   
   Serial.begin(115200);
 }
 
@@ -74,15 +75,12 @@ void loop(){
     
   calculateAngles(); 
  
- 
-/*
   Serial.print(measures[ROLL]);
   Serial.print(",");
   Serial.print(measures[PITCH]);
   Serial.print(","); 
-  Serial.println(measures[YAW]);
-  */
-  //Serial.print(","); 
+  Serial.print(measures[YAW]);
+  Serial.print(","); 
   Serial.print(angular_motions[ROLL]);
   Serial.print(",");
   Serial.print(angular_motions[PITCH]);
