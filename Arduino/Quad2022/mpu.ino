@@ -35,7 +35,7 @@ void readSensor() {
   acc_raw[X]=(Wire.read()<<8|Wire.read())/SCALE_ACC;
   acc_raw[Y]=(Wire.read()<<8|Wire.read())/SCALE_ACC;
   acc_raw[Z]=(Wire.read()<<8|Wire.read())/SCALE_ACC;
-  Temp=Wire.read()<<8|Wire.read();
+  Temp=Wire.read()<<8|Wire.read();      // not used
   gyro_raw[X]=(Wire.read()<<8|Wire.read())/SCALE_GYRO;
   gyro_raw[Y]=(Wire.read()<<8|Wire.read())/SCALE_GYRO;
   gyro_raw[Z]=(Wire.read()<<8|Wire.read())/SCALE_GYRO;
