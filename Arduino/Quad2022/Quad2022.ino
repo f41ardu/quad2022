@@ -17,9 +17,6 @@
 
 // output 
 #define ALL
-//#define MEASURES
-//#define ANGULAR
-
 
 #include <Wire.h>
 
@@ -94,22 +91,7 @@ void loop(){
     Serial.println(angular_motions[YAW]);
   #endif
 
-  #ifdef MEASURES
-    Serial.print(measures[ROLL]);
-    Serial.print(",");
-    Serial.print(measures[PITCH]);
-    Serial.print(","); 
-  //  Serial.print(measures[YAW]);
-    Serial.print("\n");
- #endif
- #ifdef ANGULAR 
-    Serial.print(angular_motions[ROLL]);
-    Serial.print(",");
-    Serial.print(angular_motions[PITCH]);
-    Serial.print(","); 
-    Serial.print(angular_motions[YAW]);
-    Serial.print("\n");
-  #endif
+
   lastUpdate = Now;
   //delay(100);
 }
