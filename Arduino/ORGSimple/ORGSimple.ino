@@ -12,15 +12,15 @@
 
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
 //#define FREQ        250   // Sampling frequency
-#define SSF_GYRO    1  // Sensitivity Scale Factor of the gyro from datasheet
-#define SCALE_ACC  8182 
-#define SCALE_GYRO 65.5
+#define SSF_GYRO    65.5  // Sensitivity Scale Factor of the gyro from datasheet
+//#define SCALE_ACC  1
+//#define SCALE_GYRO 65.5
 
 // output 
 #define ALL
 //#define MEASURES
 //#define ANGULAR
-
+//#define ANGULAR
 
 #include <Wire.h>
 
@@ -63,7 +63,7 @@ int  Freq, Now;
 int Temp; // not used 
  
 // Init flag set to TRUE after first loop
-boolean initialized;
+boolean initialized = false;
  
 void setup(){
   Wire.begin();
@@ -92,7 +92,7 @@ void loop(){
     Serial.print(",");
     Serial.print(angular_motions[PITCH]);
     Serial.print(","); 
-    Serial.println(angular_motions[YAW]);
+    Serial.print(angular_motions[YAW]);
   #endif
 
   #ifdef MEASURES
@@ -100,17 +100,24 @@ void loop(){
     Serial.print(",");
     Serial.print(measures[PITCH]);
     Serial.print(","); 
-  //  Serial.print(measures[YAW]);
-    Serial.print("\n");
+    Serial.print(measures[YAW]);
  #endif
  #ifdef ANGULAR 
     Serial.print(angular_motions[ROLL]);
     Serial.print(",");
     Serial.print(angular_motions[PITCH]);
     Serial.print(","); 
-    Serial.print(angular_motions[YAW]);
-    Serial.print("\n");
+    Serial.print(angular_motions[YAW])
   #endif
+  #ifdef GYROANGLE
+    Serial.print(gyro_angle[X]);
+    Serial.print(",");
+    Serial.print(gyro_angle[Y]);
+    Serial.print(","); 
+    Serial.print(gyro_angle[Z]);
+  #endif
+  
+    Serial.print("\n");
   lastUpdate = Now;
   //delay(100);
 }
