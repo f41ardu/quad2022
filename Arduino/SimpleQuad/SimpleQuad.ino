@@ -10,7 +10,7 @@
 //#define ANGULAR
 
 #include <Wire.h>
-#include "PID_v1.h"
+#include <PID_v1.h>
 #include "definitions.h"
 #include "mpu.h"
 
@@ -19,15 +19,15 @@
 double setRoll, inRoll, rollOut;
 double kpRoll=0.5, kiRoll=0.01, kdRoll=1;
 double roll;
-// PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-PID quadRoll(&roll, &rollOut, &setRoll, kpRoll, kiRoll, kdRoll,REVERSE); 
+// PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd,P_ON_M, DIRECT);
+PID quadRoll(&roll, &rollOut, &setRoll, kpRoll, kiRoll, kdRoll, P_ON_M, REVERSE); 
 
 // Pitch
 double setPitch, inPitch, pitchOut;
 double kpPitch=0.5, kiPitch=0.01, kdPitch=1;
 double pitch;
 // PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-PID quadPitch(&pitch, &pitchOut, &setPitch, kpPitch, kiPitch, kdPitch,REVERSE);
+PID quadPitch(&pitch, &pitchOut, &setPitch, kpPitch, kiPitch, kdPitch,P_ON_M, REVERSE);
 
 
 // integration timer 
@@ -48,11 +48,11 @@ void setup(){
   lastUpdate = micros();  
   Serial.begin(115200);
   quadRoll.SetSampleTime(1);
-  quadRoll.SetOutputLimits(-500, 500);
+  quadRoll.SetOutputLimits(-400, 400);
   quadRoll.SetMode(AUTOMATIC);
 
   quadPitch.SetSampleTime(1);
-  quadPitch.SetOutputLimits(-500, 500);
+  quadPitch.SetOutputLimits(-400, 400);
   quadPitch.SetMode(AUTOMATIC);
 
   setRoll = 0;
@@ -84,9 +84,20 @@ void loop(){
     Serial.print(angular_motions[YAW]);
     Serial.print(",");
     */ 
-    Serial.print(rollOut);
+    /*
+     *  // Calculate pulse duration for each ESC
+       pulse_length_esc1 = throttle - int(roll_pid) - int(pitch_pid) + int(yaw_pid);
+       pulse_length_esc2 = throttle + int(roll_pid) - int(pitch_pid) - int(yaw_pid);
+       pulse_length_esc3 = throttle - int(roll_pid) + int(pitch_pid) - int(yaw_pid);
+       pulse_length_esc4 = throttle + int(roll_pid) + int(pitch_pid) + int(yaw_pid);
+     */
+    Serial.print(1500-rollOut-pitchOut);
     Serial.print(",");
-    Serial.print(pitchOut);
+    Serial.print(1500+rollOut-pitchOut);
+    Serial.print(",");
+    Serial.print(1500-rollOut+pitchOut);
+    Serial.print(",");
+    Serial.print(1500+rollOut+pitchOut);
   #endif
 
   #ifdef MEASURES

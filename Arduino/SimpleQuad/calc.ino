@@ -14,13 +14,13 @@ void calculateGyroAngles() {
 //    mpu.setXAccelOffset(41);
 //    mpu.setYAccelOffset(-74);
 //    mpu.setZAccelOffset(1224);
-    gyro_raw[X] = gyro_raw[X] + gyro_offset[X]; // + (  174);
-    gyro_raw[Y] = gyro_raw[Y] + gyro_offset[Y];//  + (  -17); 
-    gyro_raw[Z] = gyro_raw[Z] + gyro_offset[Z];//  + (  -15);
+    gyro_raw[X] = gyro_raw[X] + gyro_offset[X] + (  174);
+    gyro_raw[Y] = gyro_raw[Y] + gyro_offset[Y] + (  -17); 
+    gyro_raw[Z] = gyro_raw[Z] + gyro_offset[Z] + (  -15);
 
-    acc_raw[X] = acc_raw[X] + acc_offset[X];// + (  41);
-    acc_raw[Y] = acc_raw[Y] + acc_offset[Y];//  + ( -74);
-    acc_raw[Z] = acc_raw[Z] + acc_offset[Z];// + (1224);
+    acc_raw[X] = acc_raw[X] + acc_offset[X] + (  41);
+    acc_raw[Y] = acc_raw[Y] + acc_offset[Y] + ( -74);
+    acc_raw[Z] = acc_raw[Z] + acc_offset[Z] + (1224);
  
     // Angle calculation using integration
     gyro_angle[X] += (gyro_raw[X] / (Freq * SSF_GYRO));
@@ -49,14 +49,14 @@ void calculateAngles() {
         initialized = true;
     }
     // To dampen the pitch and roll angles a complementary filter is used
-    measures[ROLL]  = measures[ROLL]  * 0.9 + gyro_angle[X] * 0.1;
-    measures[PITCH] = measures[PITCH] * 0.9 + gyro_angle[Y] * 0.1;
-    // measures[YAW]   = -gyro_raw[Z] / SSF_GYRO; // Store the angular motion for this axis
+    measures[ROLL]  = measures[ROLL]  * 0.98 + gyro_angle[X] * 0.02;
+    measures[PITCH] = measures[PITCH] * 0.98 + gyro_angle[Y] * 0.02;
+    measures[YAW]   = -gyro_raw[Z] / SSF_GYRO; // Store the angular motion for this axis
 
     // Apply low-pass filter (10Hz cutoff frequency)
-  //  angular_motions[ROLL]  = 0.7 * angular_motions[ROLL]  + 0.3 * gyro_raw[X] / SSF_GYRO;
-  //  angular_motions[PITCH] = 0.7 * angular_motions[PITCH] + 0.3 * gyro_raw[Y] / SSF_GYRO ;
-  //  angular_motions[YAW]   = 0.7 * angular_motions[YAW]   + 0.3 * gyro_raw[Z] / SSF_GYRO;
+    angular_motions[ROLL]  = 0.7 * angular_motions[ROLL]  + 0.3 * gyro_raw[X] / SSF_GYRO;
+    angular_motions[PITCH] = 0.7 * angular_motions[PITCH] + 0.3 * gyro_raw[Y] / SSF_GYRO ;
+    angular_motions[YAW]   = 0.7 * angular_motions[YAW]   + 0.3 * gyro_raw[Z] / SSF_GYRO;
     
 }
 
