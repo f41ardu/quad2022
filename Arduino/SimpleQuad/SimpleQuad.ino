@@ -4,8 +4,8 @@
 
 
 // output 
-//#define ALL
-#define MEASURES
+#define ALL
+//#define MEASURES
 //#define ANGULAR
 //#define ANGULAR
 
@@ -101,7 +101,7 @@ void loop(){
     Serial.print(",");
     Serial.print(angular_motions[PITCH]);
     Serial.print(","); 
-    Serial.print(angular_motions[YAW])
+    Serial.print(angular_motions[YAW]);
   #endif
   #ifdef GYROANGLE
     Serial.print(gyro_angle[X]);
