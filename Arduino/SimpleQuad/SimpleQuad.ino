@@ -4,10 +4,10 @@
 
 
 // output 
-//#define ALL
+#define ALL
 //#define MEASURES
-#define ANGULAR
 //#define ANGULAR
+//#define GYROANGLE
 
 #include <Wire.h>
 #include <PID_v1.h>
@@ -17,17 +17,24 @@
 //Define Variables we'll be connecting to
 // Roll
 double setRoll, inRoll, rollOut;
-double kpRoll=0.5, kiRoll=0.01, kdRoll=1;
+double kpRoll=1.3, kiRoll=0.04, kdRoll=3.0;
 double roll;
 // PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd,P_ON_M, DIRECT);
 PID quadRoll(&roll, &rollOut, &setRoll, kpRoll, kiRoll, kdRoll, P_ON_M, REVERSE); 
 
 // Pitch
 double setPitch, inPitch, pitchOut;
-double kpPitch=0.5, kiPitch=0.01, kdPitch=1;
+double kpPitch=1.3, kiPitch=0.04, kdPitch=3.;
 double pitch;
 // PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 PID quadPitch(&pitch, &pitchOut, &setPitch, kpPitch, kiPitch, kdPitch,P_ON_M, REVERSE);
+
+// Angular_Motion Yaw
+double setAYaw, inAYaw,AYawOut;
+double kpAYaw=4.0, kiAYaw=0.02, kdAYaw=0.0;
+double aYaw;
+// PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+PID quadAYaw(&aYaw, &AYawOut, &setAYaw, kpAYaw, kiAYaw, kdAYaw,P_ON_M, DIRECT);
 
 
 // integration timer 
@@ -55,8 +62,15 @@ void setup(){
   quadPitch.SetOutputLimits(-400, 400);
   quadPitch.SetMode(AUTOMATIC);
 
-  setRoll = 0;
-  setPitch =0; 
+  quadAYaw.SetSampleTime(1);
+  quadAYaw.SetOutputLimits(-50,50);
+  quadAYaw.SetMode(AUTOMATIC);
+
+// receiver
+
+  setRoll  = 0;
+  setPitch = 0;
+  setAYaw  = 0;
 
 }
 
@@ -70,6 +84,8 @@ void loop(){
   quadRoll.Compute();
   pitch = measures[PITCH]; 
   quadPitch.Compute();
+  aYaw = measures[YAW]; 
+  quadAYaw.Compute();
   #ifdef ALL
     //Serial.print(roll);
     //Serial.print(",");
@@ -91,13 +107,13 @@ void loop(){
        pulse_length_esc3 = throttle - int(roll_pid) + int(pitch_pid) - int(yaw_pid);
        pulse_length_esc4 = throttle + int(roll_pid) + int(pitch_pid) + int(yaw_pid);
      */
-    Serial.print(1500-(rollOut-pitchOut)/2);
+    Serial.print(1500-(rollOut-pitchOut)/2 + AYawOut);
     Serial.print(",");
-    Serial.print(1500+(rollOut-pitchOut)/2);
+    Serial.print(1500+(rollOut-pitchOut)/2 - AYawOut);
     Serial.print(",");
-    Serial.print(1500-(rollOut+pitchOut)/2);
+    Serial.print(1500-(rollOut+pitchOut)/2 - AYawOut);
     Serial.print(",");
-    Serial.print(1500+(rollOut+pitchOut)/2);
+    Serial.print(1500+(rollOut+pitchOut)/2 + AYawOut);
   #endif
 
   #ifdef MEASURES

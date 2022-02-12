@@ -25,7 +25,7 @@ the same amount and vice versa. Also if the quad is falling down from the front
 arm then speed up the M1 motor and slow down  M4. The rule is written as follows.
 
 M1 = M1 + PitchAmount  *  PitchGain
-M4 = M4 -  PitchAmount  *  PitchGain
+M4 = M4 - PitchAmount  *  PitchGain
 M2 = M2 + RollAmount   *   RollGain
 M3 = M3  - RollAmount   *   RollGain
 
