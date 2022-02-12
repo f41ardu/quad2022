@@ -33,9 +33,9 @@ void calculateErrors() {
  * Calculate PID set points on axis YAW, PITCH, ROLL
  */
 void calculateSetPoints() {
-    pid_set_points[YAW]   = calculateYawSetPoint(pulse_length[mode_mapping[YAW]], pulse_length[mode_mapping[THROTTLE]]);
-    pid_set_points[PITCH] = calculateSetPoint(measures[PITCH], pulse_length[mode_mapping[PITCH]]);
-    pid_set_points[ROLL]  = calculateSetPoint(measures[ROLL], pulse_length[mode_mapping[ROLL]]);
+   pid_set_points[YAW]   = calculateYawSetPoint(pulse_length[mode_mapping[YAW]], pulse_length[mode_mapping[THROTTLE]]);
+   pid_set_points[PITCH] = calculateSetPoint(measures[PITCH], pulse_length[mode_mapping[PITCH]]);
+   pid_set_points[ROLL]  = calculateSetPoint(measures[ROLL], pulse_length[mode_mapping[ROLL]]);
 }
 
 /**
@@ -121,9 +121,9 @@ void pidController() {
     int   throttle     = pulse_length[mode_mapping[THROTTLE]];
 
     // Initialize motor commands with throttle
-    pulse_length_esc1 = throttle;
-    pulse_length_esc2 = throttle;
-    pulse_length_esc3 = throttle;
+    pulse_length_esc1 = 0; //throttle;
+    pulse_length_esc2 = 0;//throttle;
+    pulse_length_esc3 = 0;//throttle;
     pulse_length_esc4 = throttle;
 
     // Do not calculate anything if throttle is 0

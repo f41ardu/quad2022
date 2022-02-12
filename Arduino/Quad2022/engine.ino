@@ -8,10 +8,10 @@
  */
 void applyMotorSpeed() {
     
-        mEsc1 = pulse_length_esc1; // Set motor 1 
-        mEsc2 = pulse_length_esc2; // Set motor 2 
-        mEsc3 = pulse_length_esc3; // Set motor 3
-        mEsc3 = pulse_length_esc4; // Set motor 4
+//        mEsc1 = pulse_length_esc1; // Set motor 1 
+//        mEsc2 = pulse_length_esc2; // Set motor 2 
+//        mEsc3 = pulse_length_esc3; // Set motor 3
+//        mEsc3 = pulse_length_esc4; // Set motor 4
 
 }
 
@@ -19,8 +19,8 @@ void applyMotorSpeed() {
  * Reset motors' pulse length to 1000µs to totally stop them.
  */
 void stopAll() {
-    mEsc1 = minPulse; // 1000 we use minPulse from serve2.h  
-    mEsc2 = minPulse;
-    mEsc3 = minPulse;
-    mEsc4 = minPulse;
+//    mEsc1 = minPulse; // 1000 we use minPulse from serve2.h  
+//    mEsc2 = minPulse;
+//    mEsc3 = minPulse;
+//    mEsc4 = minPulse;
 }

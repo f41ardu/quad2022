@@ -32,13 +32,13 @@ void readSensor() {
   Wire.requestFrom(MPU_ADDRESS,14,true);
   // Wait until all the bytes are received
   while(Wire.available() < 14);
-  acc_raw[X]=(Wire.read()<<8|Wire.read())/SCALE_ACC;
-  acc_raw[Y]=(Wire.read()<<8|Wire.read())/SCALE_ACC;
-  acc_raw[Z]=(Wire.read()<<8|Wire.read())/SCALE_ACC;
-  Temp=Wire.read()<<8|Wire.read();      // not used
-  gyro_raw[X]=(Wire.read()<<8|Wire.read())/SCALE_GYRO;
-  gyro_raw[Y]=(Wire.read()<<8|Wire.read())/SCALE_GYRO;
-  gyro_raw[Z]=(Wire.read()<<8|Wire.read())/SCALE_GYRO;
+  acc_raw[X]=(Wire.read()<<8|Wire.read()); 
+  acc_raw[Y]=(Wire.read()<<8|Wire.read()); 
+  acc_raw[Z]=(Wire.read()<<8|Wire.read()); 
+  Temp=Wire.read()<<8|Wire.read();
+  gyro_raw[X]=(Wire.read()<<8|Wire.read()); 
+  gyro_raw[Y]=(Wire.read()<<8|Wire.read()); 
+  gyro_raw[Z]=(Wire.read()<<8|Wire.read());
 }
 
 /**
