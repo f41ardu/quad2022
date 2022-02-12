@@ -51,7 +51,7 @@ void calculateAngles() {
     // To dampen the pitch and roll angles a complementary filter is used
     measures[ROLL]  = measures[ROLL]  * 0.98 + gyro_angle[X] * 0.02;
     measures[PITCH] = measures[PITCH] * 0.98 + gyro_angle[Y] * 0.02;
-    measures[YAW]   = -gyro_raw[Z] / SSF_GYRO; // Store the angular motion for this axis
+    measures[YAW]   = measures[YAW]    * 0.98 +  (-gyro_raw[Z] *0.02) / SSF_GYRO; // Store the angular motion for this axis
 
     // Apply low-pass filter (10Hz cutoff frequency)
     angular_motions[ROLL]  = 0.7 * angular_motions[ROLL]  + 0.3 * gyro_raw[X] / SSF_GYRO;
