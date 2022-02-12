@@ -61,9 +61,9 @@ uint8_t tservo::attach(unsigned pin)
 {
   _pin=pin;
   if(!_pulse) { // val in °
-    _pulseWidth = map(90,0,180,minPulse,maxPulse);
+    _pulseWidth = map(90,0,180,minServoPulse,maxServoPulse);
   }   else {    // pulse from RC
-    _pulseWidth = int(maxPulse-minPulse/2);
+    _pulseWidth = int(maxServoPulse-minServoPulse/2);
   }   
   next = first;
   first = this;
@@ -86,7 +86,7 @@ void tservo::detach()
 void tservo::write(unsigned val) {
   _val = val;
   if (!_pulse) { // val in °
-    _pulseWidth = map(_val,0,180,minPulse,maxPulse);
+    _pulseWidth = map(_val,0,180,minServoPulse,maxServoPulse);
     } else { // val in pulse from RC     
     _pulseWidth = val;
   }

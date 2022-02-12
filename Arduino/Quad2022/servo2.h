@@ -45,8 +45,8 @@ Version 1.1 ThR
 #include <inttypes.h>
 
 #define refreshTime 20000
-#define minPulse 450
-#define maxPulse 2600 
+#define minServoPulse 1000
+#define maxServoPulse 2000 
 
 class tservo
 {

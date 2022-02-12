@@ -18,8 +18,8 @@
 
 // MPU 
 #define MPU_ADDRESS 0x68  // I2C address of the MPU-6050
-#define SCALE_ACC  8182 
-#define SCALE_GYRO 65.5
+//#define FREQ        250   // Sampling frequency
+#define SSF_GYRO    65.5  // Sensitivity Scale Factor of the gyro from datasheet
 // RC helper
 #define STOPPED  0
 #define STARTING 1
@@ -39,29 +39,29 @@ volatile unsigned long timer[4]; // Timer of each channel
 int mode_mapping[4];
 // ----------------------- MPU variables -------------------------------------
 // The RAW values got from gyro (in °/sec) in that order: X, Y, Z
-int16_t gyro_raw[3] = {0,0,0};
+int gyro_raw[3] = {0,0,0};
 
 // Average gyro offsets of each axis in that order: X, Y, Z
-int16_t gyro_offset[3] = {0, 0, 0};
+long gyro_offset[3] = {0, 0, 0};
 
 // Calculated angles from gyro's values in that order: X, Y, Z
 float gyro_angle[3]  = {0,0,0};
 
 // The RAW values got from accelerometer (in m/sec²) in that order: X, Y, Z
-int16_t acc_raw[3] = {0 ,0 ,0};
+int acc_raw[3] = {0 ,0 ,0};
 
 
 // Average acc offsets of each axis in that order: X, Y, Z
-int16_t acc_offset[3] = {0, 0, 0};
+int acc_offset[3] = {0, 0, 0};
 
 // Calculated angles from accelerometer's values in that order: X, Y, Z
 float acc_angle[3] = {0,0,0};
 
-// Total 3D acceleration vector in m/s²
-float acc_total_vector;
+// Total 3D acceleration vector in m/s² acc_total_vector;
+long acc_total_vector;
 
 // Calculated angular motion on each axis: Yaw, Pitch, Roll
-float angular_motions[3] = {0, 0, 0};
+long angular_motions[3] = {0, 0, 0};
 
 /**
  * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
@@ -75,7 +75,7 @@ float measures[3] = {0, 0, 0};
 int temperature;
 
 // Init flag set to TRUE after first loop
-boolean initialized;
+boolean initialized = false;
 // ----------------------- Variables for servo signal generation -------------
 // unsigned int  period; // Sampling period
 // unsigned long loop_timer;
@@ -90,10 +90,12 @@ int Temp; // not used
 // Set pins for brushed engines #4 #5 #6 #7
 tservo mEsc1(4,true),mEsc2(5,true), mEsc3(6,true),mEsc4(7,true); // will be renamed later 
 
-unsigned long pulse_length_esc1 = minPulse,
-        pulse_length_esc2 = minPulse,
-        pulse_length_esc3 = minPulse,
-        pulse_length_esc4 = minPulse;
+unsigned long pulse_length_esc1,
+        pulse_length_esc2,
+        pulse_length_esc3,
+        pulse_length_esc4;
+unsigned long minPulse = 1000;
+unsigned long maxPulse = 2000;
 
 // ------------- Global variables used for PID controller --------------------
 float pid_set_points[3] = {0, 0, 0}; // Yaw, Pitch, Roll
