@@ -4,9 +4,9 @@
 
 
 // output 
-#define ALL
+//#define ALL
 //#define MEASURES
-//#define ANGULAR
+#define ANGULAR
 //#define ANGULAR
 
 #include <Wire.h>
@@ -91,13 +91,13 @@ void loop(){
        pulse_length_esc3 = throttle - int(roll_pid) + int(pitch_pid) - int(yaw_pid);
        pulse_length_esc4 = throttle + int(roll_pid) + int(pitch_pid) + int(yaw_pid);
      */
-    Serial.print(1500-rollOut-pitchOut);
+    Serial.print(1500-(rollOut-pitchOut)/2);
     Serial.print(",");
-    Serial.print(1500+rollOut-pitchOut);
+    Serial.print(1500+(rollOut-pitchOut)/2);
     Serial.print(",");
-    Serial.print(1500-rollOut+pitchOut);
+    Serial.print(1500-(rollOut+pitchOut)/2);
     Serial.print(",");
-    Serial.print(1500+rollOut+pitchOut);
+    Serial.print(1500+(rollOut+pitchOut)/2);
   #endif
 
   #ifdef MEASURES
