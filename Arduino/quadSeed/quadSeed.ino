@@ -1,5 +1,5 @@
 
-// quad2022 edition v.02 (based on ORGSimple)
+// quad2022 edition v.02 (based on ORGSimple) 
 // see also https://medium.com/@kavindugimhanzoysa/lets-work-with-mpu6050-gy-521-part1-6db0d47a35e6
 #define X           0     // X axis
 #define Y           1     // Y axis
@@ -23,10 +23,10 @@
 #define STARTED  2
 
 // output 
-//#define ALL
+#define ALL
 //#define MEASURES
 //#define ANGULAR
-#define ESC
+//#define ESC
 
 #include <Wire.h>
 #define STOPPED  0
@@ -140,11 +140,11 @@ void setup(){
 
 void loop(){
 
-   pulse_length[mode_mapping[YAW]] = 1500; 
+    pulse_length[mode_mapping[YAW]] = 1500; 
     pulse_length[mode_mapping[PITCH]] = 1500; 
     pulse_length[mode_mapping[ROLL]] = 1500; 
-    pulse_length[mode_mapping[THROTTLE]] = 1500; 
-    status = STARTED;
+    pulse_length[mode_mapping[THROTTLE]] = 1900; 
+    
     
     // 1. First, read raw values from MPU-6050
   readSensor();
@@ -163,7 +163,7 @@ void loop(){
         // 5. Calculate motors speed with PID controller
         pidController();
 
-    //    compensateBatteryDrop();
+        compensateBatteryDrop();
     //}
 
     // 6. Apply motors speed
@@ -221,7 +221,7 @@ void loop(){
     Serial.print(pulse_length_esc4);
   #endif
     Serial.print("\n");
-  lastUpdate = Now;
+  lastUpdate = micros();
   //delay(100);
 }
 
@@ -333,9 +333,9 @@ void calculateErrors() {
     error_sum[ROLL]  += errors[ROLL];
 
     // Keep values in acceptable range
-    //error_sum[YAW]   = minMax(error_sum[YAW],   -400/Ki[YAW],   400/Ki[YAW]);
-    //error_sum[PITCH] = minMax(error_sum[PITCH], -400/Ki[PITCH], 400/Ki[PITCH]);
-    //error_sum[ROLL]  = minMax(error_sum[ROLL],  -400/Ki[ROLL],  400/Ki[ROLL]);
+    error_sum[YAW]   = minMax(error_sum[YAW],   -400/Ki[YAW],   400/Ki[YAW]);
+    error_sum[PITCH] = minMax(error_sum[PITCH], -400/Ki[PITCH], 400/Ki[PITCH]);
+    error_sum[ROLL]  = minMax(error_sum[ROLL],  -400/Ki[ROLL],  400/Ki[ROLL]);
 
     // Calculate error delta : Derivative coefficients
     delta_err[YAW]   = errors[YAW]   - previous_error[YAW];
@@ -477,10 +477,10 @@ float calculateYawSetPoint(int yaw_pulse, int throttle_pulse) {
  */
 void compensateBatteryDrop() {
     if (isBatteryConnected()) {
-        pulse_length_esc1 += pulse_length_esc1 * ((1240 - battery_voltage) / (float) 3500);
-        pulse_length_esc2 += pulse_length_esc2 * ((1240 - battery_voltage) / (float) 3500);
-        pulse_length_esc3 += pulse_length_esc3 * ((1240 - battery_voltage) / (float) 3500);
-        pulse_length_esc4 += pulse_length_esc4 * ((1240 - battery_voltage) / (float) 3500);
+        pulse_length_esc1 += pulse_length_esc1; //* ((1240 - battery_voltage) / (float) 3500);
+        pulse_length_esc2 += pulse_length_esc2; //* ((1240 - battery_voltage) / (float) 3500);
+        pulse_length_esc3 += pulse_length_esc3; // * ((1240 - battery_voltage) / (float) 3500);
+        pulse_length_esc4 += pulse_length_esc4; // * ((1240 - battery_voltage) / (float) 3500);
     }
 }
 
