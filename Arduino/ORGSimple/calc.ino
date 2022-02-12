@@ -2,6 +2,8 @@
 /**
  * Calculate pitch & roll angles using only the gyro.
  */
+
+
 void calculateGyroAngles() {
     // Subtract offsets
 
