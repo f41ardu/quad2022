@@ -1,32 +1,4 @@
-#define YAW      0
-#define PITCH    1
-#define ROLL     2
-#define THROTTLE 3
 
-#define X           0     // X axis
-#define Y           1     // Y axis
-#define Z           2     // Z axis
-// Calculated angles from gyro's values in that order: X, Y, Z
-float gyro_angle[3]  = {0,0,0};
-
-// Calculated angles from accelerometer's values in that order: X, Y, Z
-float acc_angle[3] = {0,0,0};
-
-// Total 3D acceleration vector in m/s²
-float acc_total_vector;
-
-// Calculated angular motion on each axis: Yaw, Pitch, Roll
-float angular_motions[3] = {0, 0, 0};
-
-/**
- * Real measures on 3 axis calculated from gyro AND accelerometer in that order : Yaw, Pitch, Roll
- *  - Left wing up implies a positive roll
- *  - Nose up implies a positive pitch
- *  - Nose right implies a positive yaw
- */
-float measures[3] = {0, 0, 0};
-
-boolean initialized = false;
 /* MPU6050 Basic Example with IMU
   by: Kris Winer
   date: May 10, 2014
@@ -103,12 +75,7 @@ void loop()
     Serial.print(", ");
     Serial.print(degrees(pitch));
     Serial.print(", ");
-    Serial.print((measures[ROLL]));
-    Serial.print(", ");
-    Serial.print((measures[PITCH]));
-    Serial.print(", ");
-    Serial.println(degrees(yaw));
-    
+    Serial.println(degrees(yaw));  
 #endif
 
     }

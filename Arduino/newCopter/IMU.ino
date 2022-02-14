@@ -106,7 +106,6 @@ void imuCalc() {
       }
   // Pass gyro rate as rad/s
   MadgwickQuaternionUpdate(ax, ay, az, gyrox * PI / 180.0f, gyroy * PI / 180.0f, gyroz * PI / 180.0f);
-  calculateAngles();
 }
 
 // Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
