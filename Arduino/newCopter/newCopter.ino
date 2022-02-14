@@ -43,7 +43,7 @@ float roll, pitch, yaw = 0.0f;                    // store roll, pitch and yaw i
 void setup()
 {
   Wire.begin();
-  Serial.begin(38400);
+  Serial.begin(115200);
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -70,11 +70,11 @@ void loop()
    Serial.println(q[3]);
 #endif
 #ifdef rollpitchyaw       
-    Serial.print(roll);
+    Serial.print(degrees(roll));
     Serial.print(", ");
-    Serial.print(pitch);
+    Serial.print(degrees(pitch));
     Serial.print(", ");
-    Serial.println(yaw);
+    Serial.println(degrees(yaw));
 #endif
 
     }
