@@ -1,5 +1,5 @@
 #include "MPU6050.h"
-int Gscale = GFS_500DPS;
+int Gscale = GFS_1000DPS;
 int Ascale = AFS_8G;
 
 float MPU6050lib::getGres() {

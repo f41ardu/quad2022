@@ -21,6 +21,7 @@ float GyroMeasError = PI * (40.0f / 180.0f);     // gyroscope measurement error 
 float beta = sqrt(3.0f / 4.0f) * GyroMeasError;  // compute beta
 float GyroMeasDrift = PI * (2.0f / 180.0f);      // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
 float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;  // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
+float pi_180 = PI / 180.0;
 
 uint32_t lastUpdate = 0, firstUpdate = 0;         // used to calculate integration interval
 uint32_t Now = 0;                                 // used to calculate integration interval
@@ -71,6 +72,8 @@ void initSensors() {
       // Serial.println(c, HEX);
       while (1) ; // Loop forever if communication doesn't happen
     }
+    aRes = mpu.getAres();
+    gRes = mpu.getGres()*pi_180;
   }
 }
 
@@ -78,15 +81,14 @@ void imuCalc() {
   // If data ready bit set, all data registers have new data
   if (mpu.readByte(MPU6050_ADDRESS, INT_STATUS) & 0x01) { // check if data ready interrupt
     mpu.readAccelData(accelCount);  // Read the x/y/z adc values
-    aRes = mpu.getAres();
-
+    
     // Now we'll calculate the accleration value into actual g's
     ax = (float)accelCount[0] * aRes; // get actual g value, this depends on scale being set
     ay = (float)accelCount[1] * aRes;
     az = (float)accelCount[2] * aRes;
 
     mpu.readGyroData(gyroCount);  // Read the x/y/z adc values
-    gRes = mpu.getGres();
+    
 
     // Calculate the gyro value into actual degrees per second
     gyrox = (float)gyroCount[0] * gRes; // get actual gyro value, this depends on scale being set
@@ -105,8 +107,9 @@ void imuCalc() {
         zeta = 0.015; // increase gyro bias drift gain after stabilized
       }
   // Pass gyro rate as rad/s
-  MadgwickQuaternionUpdate(ax, ay, az, gyrox * PI / 180.0f, gyroy * PI / 180.0f, gyroz * PI / 180.0f);
-}
+  MadgwickQuaternionUpdate(ax, ay, az, gyrox, gyroy, gyroz);
+
+} 
 
 // Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
 // (see http://www.x-io.co.uk/category/open-source/ for examples and more details)
@@ -210,12 +213,13 @@ void MadgwickQuaternionUpdate(float ax, float ay, float az, float gyrox, float g
     // Tait-Bryan angles as well as Euler angles are non-commutative; that is, the get the correct orientation the rotations must be
     // applied in the correct order which for this configuration is yaw, pitch, and then roll.
     // For more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles which has additional links.
-    
-   // yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
-   // pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
-   // roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
-      roll  = atan2((q[0] * q[1] + q[2] * q[3]), 0.5 - (q[1] * q[1] + q[2] * q[2]));
-      pitch = asin(2.0 * (q[0] * q[2] - q[1] * q[3]));
-      yaw   = atan2((q[1] * q[2] + q[0] * q[3]), 0.5 - ( q[2] * q[2] + q[3] * q[3]));
+    // Euler
+    //yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
+    //pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+    //roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
+    // roll pitch yaw  
+    roll  = degrees(atan2((q[0] * q[1] + q[2] * q[3]), 0.5 - (q[1] * q[1] + q[2] * q[2])));
+    pitch = degrees(asin(2.0 * (q[0] * q[2] - q[1] * q[3])));
+    yaw   = degrees(atan2((q[1] * q[2] + q[0] * q[3]), 0.5 - ( q[2] * q[2] + q[3] * q[3])));
 
-}
+  }
