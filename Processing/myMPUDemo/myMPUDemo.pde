@@ -30,7 +30,7 @@ import processing.opengl.*;
       imageMode(CENTER);
       
       String portName="/dev/ttyUSB0";
-      myPort = new Serial(this, portName, 38400);
+      myPort = new Serial(this, portName, 115200);
       myPort.bufferUntil('\n');
       myPort.write('r');
       frameRate(100);
@@ -54,7 +54,7 @@ import processing.opengl.*;
     // translate everything to the middle of the viewport
     pushMatrix();
     translate(width / 2, height / 2);
-    rotateX(value[0]);   // MPU x 
+    rotateX(-value[0]);   // MPU x 
     rotateY(value[2]);  // MPU z
     rotateZ(-value[1]);   // MPU x
      

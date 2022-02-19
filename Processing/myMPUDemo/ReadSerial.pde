@@ -11,5 +11,6 @@ void serialEvent(Serial myPort) {
       value[i]=(float(msg[i]));
       // print(value[i]); 
     } 
+    value[2] = 0.; 
   }     
 }
