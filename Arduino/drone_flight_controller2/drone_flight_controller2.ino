@@ -6,6 +6,10 @@
    modified for wokwi by @author f41ardu
    wokwi servo range between 450 and 2500
    add debug print statements 
+       set one or more DEBUG variable true 
+   add serial plotter (change from auto to plotter)
+      "serialMonitor": { "display": "auto", "newline": "lf" }
+
 */
 
 // ---------------------------------------------------------------------------
@@ -31,10 +35,10 @@
 #define STOPPED  0
 #define STARTING 1
 #define STARTED  2
-// adopt this according your needs
+// adopt this according your needs, this is for woki servo puls range
 #define servoMin  450  // wokwi  450, check your esc and change if required
 #define servoMax 2500  // wokwi 2500, check your esc and change if required
-#define servoMid 1025  // wokwo 1025 (servoMax - ServoMin)/2
+#define servoMid 1477  // wokwo 1477 
 #define pidRange  400  // keep pid caculation in acceptable range 
 
 // ---------------- Receiver variables ---------------------------------------
@@ -63,11 +67,14 @@ float gyro_angle[3]  = {0, 0, 0};
 // The RAW values got from accelerometer (in m/sec²) in that order: X, Y, Z
 int acc_raw[3] = {0, 0, 0};
 
+// Average gyro offsets of each axis in that order: X, Y, Z
+long acc_offset[3] = {0, 0, 0};
+
 // Calculated angles from accelerometer's values in that order: X, Y, Z
 float acc_angle[3] = {0, 0, 0};
 
 // Total 3D acceleration vector in m/s²
-long acc_total_vector;
+float acc_total_vector;
 
 // Calculated angular motion on each axis: Yaw, Pitch, Roll
 float angular_motions[3] = {0, 0, 0};
@@ -85,9 +92,9 @@ int temperature;
 
 // Init flag set to TRUE after first loop
 boolean initialized;
-// debbuging 
-boolean DEBUG_pulse = false;
-boolean DEBUG_measures = true;
+// debuging 
+boolean DEBUG_pulse = true;
+boolean DEBUG_measures = false;
 boolean DEBUG_angular_motions = false;
 boolean DEBUG_RC = false; 
 
@@ -121,9 +128,9 @@ float Kd[3] = {0, 18, 18};        // D coefficients in that order : Yaw, Pitch, 
 
    @var int
 */
-int status = STOPPED;
+int status = STOPPED; // not used in simulation
 // ---------------------------------------------------------------------------
-int battery_voltage;
+int battery_voltage;  // not used in simulation
 // ---------------------------------------------------------------------------
 
 /**
@@ -320,14 +327,14 @@ void calculateAngles() {
   }
 
   // To dampen the pitch and roll angles a complementary filter is used
-  measures[ROLL]  = measures[ROLL]  * 0.9 + gyro_angle[X] * 0.1;
-  measures[PITCH] = measures[PITCH] * 0.9 + gyro_angle[Y] * 0.1;
-  measures[YAW]   = -gyro_raw[Z] / SSF_GYRO; // Store the angular motion for this axis
+  measures[ROLL]  = (measures[ROLL]  * 0.9 + gyro_angle[X] * 0.1);
+  measures[PITCH] = (measures[PITCH] * 0.9 + gyro_angle[Y] * 0.1);
+  measures[YAW]   = (-gyro_raw[Z] / SSF_GYRO); // Store the angular motion for this axis
 
   // Apply low-pass filter (10Hz cutoff frequency)
-  angular_motions[ROLL]  = 0.7 * angular_motions[ROLL]  + 0.3 * gyro_raw[X] / SSF_GYRO;
-  angular_motions[PITCH] = 0.7 * angular_motions[PITCH] + 0.3 * gyro_raw[Y] / SSF_GYRO;
-  angular_motions[YAW]   = 0.7 * angular_motions[YAW]   + 0.3 * gyro_raw[Z] / SSF_GYRO;
+  angular_motions[ROLL]  = (0.7 * angular_motions[ROLL]  + 0.3 * gyro_raw[X] / SSF_GYRO);
+  angular_motions[PITCH] = (0.7 * angular_motions[PITCH] + 0.3 * gyro_raw[Y] / SSF_GYRO);
+  angular_motions[YAW]   = (0.7 * angular_motions[YAW]   + 0.3 * gyro_raw[Z] / SSF_GYRO);
 }
 
 /**
@@ -339,6 +346,10 @@ void calculateGyroAngles() {
   gyro_raw[Y] -= gyro_offset[Y];
   gyro_raw[Z] -= gyro_offset[Z];
 
+ // acc_raw[X] =  (acc_raw[X] - acc_offset[X]);
+ // acc_raw[Y] =  (acc_raw[Y] - acc_offset[Y]);
+ // acc_raw[Z] =  (acc_raw[Z] - acc_offset[Z]);
+  
   // Angle calculation using integration
   gyro_angle[X] += (gyro_raw[X] / (FREQ * SSF_GYRO));
   gyro_angle[Y] += (-gyro_raw[Y] / (FREQ * SSF_GYRO)); // Change sign to match the accelerometer's one
@@ -501,7 +512,7 @@ void setupMpu6050Registers() {
    This function might take ~2sec for 2000 samples.
 */
 void calibrateMpu6050() {
-  int max_samples = 2000;
+  int max_samples = 10;
 
   for (int i = 0; i < max_samples; i++) {
     readSensor();
@@ -509,6 +520,10 @@ void calibrateMpu6050() {
     gyro_offset[X] += gyro_raw[X];
     gyro_offset[Y] += gyro_raw[Y];
     gyro_offset[Z] += gyro_raw[Z];
+
+    acc_offset[X] += acc_raw[X];
+    acc_offset[Y] += acc_raw[Y];
+    acc_offset[Z] += acc_raw[Z];
 
     // Generate low throttle pulse to init ESC and prevent them beeping
     PORTD |= B11110000;      // Set pins #4 #5 #6 #7 HIGH
@@ -523,6 +538,10 @@ void calibrateMpu6050() {
   gyro_offset[X] /= max_samples;
   gyro_offset[Y] /= max_samples;
   gyro_offset[Z] /= max_samples;
+  // acc
+  acc_offset[X] /= max_samples;
+  acc_offset[Y] /= max_samples;
+  acc_offset[Z] /= max_samples;
 }
 
 /**
@@ -753,9 +772,10 @@ bool isBatteryConnected() {
   }
 
 void readAnalogue() {
+  // Simulation, we keep stick yaw,roll and pitch at rest 
   pulse_length[CHANNEL1] = servoMid; //map(analogRead(A0),0,1023,450,2500); // ROLL
   pulse_length[CHANNEL2] = servoMid; //map(analogRead(A1),0,1023,450,2500); // PITCH
-  pulse_length[CHANNEL3] = 1300; // map(analogRead(A3), 0, 1023, 450, 2500); // THROTTLE
+  pulse_length[CHANNEL3] = servoMid; //map(analogRead(A3), 0, 1023, 450, 2500); // THROTTLE
   pulse_length[CHANNEL4] = servoMid; //map(analogRead(A2),0,1023,450,2500); // YAW
 
 }
